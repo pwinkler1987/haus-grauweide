@@ -148,6 +148,78 @@ html, body {
 #inventory button.pending { border-color: var(--verb-active); }
 #inventory canvas { width: 48px; height: 32px; image-rendering: pixelated; }
 
+#party {
+  display: flex;
+  gap: 6px;
+  background: var(--panel);
+  padding: 0 8px;
+}
+#party:not(:empty) { padding: 0 8px 8px; }
+#party button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--slot);
+  border: 1px solid var(--slot-border);
+  color: var(--verb);
+  font: inherit;
+  font-size: 22px;
+  padding: 2px 12px 2px 4px;
+  cursor: pointer;
+}
+#party button:hover { border-color: var(--verb-hover); }
+#party button.active { border-color: var(--verb-active); color: var(--verb-active); }
+#party canvas, #chooser canvas { width: 20px; height: 40px; image-rendering: pixelated; }
+
+#chooser {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 8, 20, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  overflow: auto;
+}
+#chooser h2 { margin: 0; font-weight: normal; color: #e8e4c0; font-size: clamp(20px, 3.4vw, 32px); }
+#chooser .cards {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+#chooser .card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: var(--slot);
+  border: 2px solid var(--slot-border);
+  color: #ddd;
+  font: inherit;
+  padding: 6px 4px;
+  cursor: pointer;
+  text-align: center;
+}
+#chooser .card canvas { width: 40px; height: 80px; }
+#chooser .card:hover { border-color: var(--verb-hover); }
+#chooser .card.picked { border-color: var(--verb-active); background: #2a2a10; }
+#chooser strong { font-size: 22px; font-weight: normal; color: var(--verb-active); }
+#chooser em { font-style: normal; color: var(--sentence); font-size: 18px; }
+#chooser small { font-size: 16px; color: #aaa; line-height: 1; }
+#chooser .go {
+  background: var(--verb);
+  color: #000;
+  border: 0;
+  font: inherit;
+  font-size: 24px;
+  padding: 2px 24px;
+  cursor: pointer;
+}
+#chooser .go:disabled { background: #333; color: #777; cursor: default; }
+
 #statusbar {
   display: flex;
   justify-content: space-between;
@@ -161,4 +233,6 @@ html, body {
 @media (max-width: 600px) {
   #game { width: calc(100vw - 32px); }
   #panel { grid-template-columns: 1fr; }
+  #chooser .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  #chooser .card small { display: none; }
 }

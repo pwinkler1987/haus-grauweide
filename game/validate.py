@@ -23,7 +23,7 @@ def _conditions(cond):
 
 
 def validate(data):
-    rooms, items = data["rooms"], data["items"]
+    rooms, items, chars = data["rooms"], data["items"], data["characters"]
     problems = []
 
     def check(where, action):
@@ -32,10 +32,16 @@ def validate(data):
                 cmd, _, arg = s[1:].lstrip("!").partition(":")
                 if cmd == "has" and arg not in items:
                     problems.append(f"{where}: Bedingung kennt Gegenstand '{arg}' nicht")
+                if cmd in ("char", "party") and arg not in chars:
+                    problems.append(f"{where}: Bedingung kennt Figur '{arg}' nicht")
                 continue
             cmd, _, arg = s.partition(":")
-            if cmd == "goto" and arg.split(":")[0] not in rooms:
+            if cmd in ("goto", "party_goto") and arg.split(":")[0] not in rooms:
                 problems.append(f"{where}: Raum '{arg}' existiert nicht")
+            if cmd in ("sayas", "place", "remove") and arg.split(":")[0] not in chars:
+                problems.append(f"{where}: Figur '{arg.split(':')[0]}' existiert nicht")
+            if cmd == "place" and arg.split(":")[1:2] and arg.split(":")[1] not in rooms:
+                problems.append(f"{where}: Raum '{arg.split(':')[1]}' existiert nicht")
             if cmd in ("take", "drop") and arg not in items:
                 problems.append(f"{where}: Gegenstand '{arg}' existiert nicht")
 
@@ -56,6 +62,10 @@ def validate(data):
                 check(f"Raum {rid}/{hid}", {"if": c})
             for verb, action in hs.get("actions", {}).items():
                 check(f"Raum {rid}/{hid}/{verb}", action)
+
+    for cid, char in chars.items():
+        for verb, action in char.get("actions", {}).items():
+            check(f"Figur {cid}/{verb}", action)
 
     for iid, item in items.items():
         for verb, action in item.get("actions", {}).items():

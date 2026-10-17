@@ -6,10 +6,17 @@
 //   [aktion, aktion, ...]         -> nacheinander ausführen
 //   {if: bedingung, do: ..., else: ...}
 //
-// Bedingungen: "flag:x", "has:gegenstand", "char:figur", mit "!" verneint,
-// oder eine Liste (alle müssen gelten).
+// Bedingungen (mit "!" verneinbar, als Liste müssen alle gelten):
+//   "flag:x"       Flag gesetzt
+//   "has:item"     aktive Figur trägt den Gegenstand
+//   "char:figur"   diese Figur wird gerade gespielt
+//   "party:figur"  Figur gehört zur Gruppe
+//   "here:n"       mindestens n Gruppenmitglieder im aktuellen Raum
 
-const COMMANDS = new Set(['say', 'narrate', 'set', 'unset', 'take', 'drop', 'goto', 'sound', 'wait']);
+const COMMANDS = new Set([
+  'say', 'sayas', 'narrate', 'set', 'unset', 'take', 'drop', 'goto', 'party_goto',
+  'place', 'remove', 'choose', 'sound', 'wait',
+]);
 
 export class ScriptRunner {
   constructor(game) {
@@ -25,8 +32,10 @@ export class ScriptRunner {
     let result;
     switch (kind) {
       case 'flag': result = !!st.flags[arg]; break;
-      case 'has': result = st.inventory.includes(arg); break;
+      case 'has': result = this.game.inventory.includes(arg); break;
       case 'char': result = st.activeChar === arg; break;
+      case 'party': result = st.party.includes(arg); break;
+      case 'here': result = this.game.partyHere().length >= Number(arg); break;
       default:
         console.warn('Unbekannte Bedingung:', cond);
         result = false;
@@ -52,6 +61,10 @@ export class ScriptRunner {
     const g = this.game;
     switch (cmd) {
       case 'say': return g.say(arg);
+      case 'sayas': {
+        const [who, ...rest] = arg.split(':');
+        return g.say(rest.join(':'), who);
+      }
       case 'narrate': return g.narrate(arg);
       case 'set': g.state.flags[arg] = true; return;
       case 'unset': delete g.state.flags[arg]; return;
@@ -63,6 +76,13 @@ export class ScriptRunner {
         const [room, pos] = arg.split(':');
         return g.enterRoom(room, pos ? pos.split(',').map(Number) : null);
       }
+      case 'party_goto': return g.partyGoto(arg);
+      case 'place': {
+        const [who, room, pos] = arg.split(':');
+        return g.placeActor(who, room, pos ? pos.split(',').map(Number) : null);
+      }
+      case 'remove': return g.removeActor(arg);
+      case 'choose': return g.chooseParty(Number(arg));
     }
   }
 }

@@ -19,6 +19,7 @@ Benötigt nur Python 3.10+ (keine Zusatzpakete) und einen modernen Browser.
 | Benutze/Gib + Gegenstand + Ziel | „Benutze Batterien mit Taschenlampe“ |
 | Rechtsklick | Standardaktion (meist „Schau an“) |
 | Tasten 1–9 | Verben |
+| Tab / Porträt-Knöpfe | Figur wechseln |
 | H | Hotspots anzeigen |
 | Leertaste / Klick | Text überspringen |
 | F5 / F9 | Speichern / Laden |
@@ -36,6 +37,23 @@ Benötigt nur Python 3.10+ (keine Zusatzpakete) und einen modernen Browser.
 Neue Datei `game/content/rooms/mein_raum.py` mit einer Variable `ROOM`
 (siehe `treehouse.py` als Vorlage). Ausgänge: `"goto:mein_raum"` oder `"goto:mein_raum:x,y"`.
 
-Aktionen: `"Text"` (Figur spricht), `"narrate:…"`, `"set:flag"`, `"unset:flag"`,
-`"take:item"`, `"drop:item"`, `"goto:raum"`, `"sound:static|melody|click"`, `"wait:ms"`,
-Listen davon, oder `{"if": "flag:x" | "has:item" | "!…", "do": …, "else": …}`.
+### Aktionen
+
+| Befehl | Wirkung |
+|---|---|
+| `"Text"` / `"say:Text"` | aktive Figur spricht |
+| `"sayas:ida:Text"` | eine bestimmte Figur spricht |
+| `"narrate:Text"` | Erzähltext-Box (Klick zum Weiter) |
+| `"set:flag"` / `"unset:flag"` | Flag setzen/löschen |
+| `"take:item"` / `"drop:item"` | Gegenstand ins/aus dem Inventar der aktiven Figur |
+| `"goto:raum[:x,y]"` | aktive Figur wechselt den Raum |
+| `"party_goto:raum"` | alle Gruppenmitglieder im Raum ziehen gemeinsam weiter |
+| `"place:figur:raum[:x,y]"` / `"remove:figur"` | Figur platzieren / entfernen |
+| `"choose:2"` | Charakterwahl-Bildschirm |
+| `"sound:name"` / `"wait:ms"` | Klang (static, melody, click, owl) / Pause |
+
+Listen von Aktionen laufen nacheinander. Bedingt: `{"if": …, "do": …, "else": …}` mit
+`flag:x`, `has:item`, `char:figur` (wird gespielt), `party:figur` (ist dabei),
+`here:2` (mind. 2 aus der Gruppe im Raum) – mit `!` verneint, als Liste UND-verknüpft.
+
+Jede Figur hat ein eigenes Inventar; mit „Gib X an <Figur>“ wandern Gegenstände weiter.

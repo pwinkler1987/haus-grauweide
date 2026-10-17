@@ -4,6 +4,7 @@ export class Actor {
   constructor(id, def) {
     this.id = id;
     this.def = def;
+    this.room = null;
     this.x = 160;
     this.y = 128;
     this.dir = 1;          // 1 = rechts, -1 = links
@@ -38,6 +39,11 @@ export class Actor {
     this.y = y;
   }
 
+  // Klickfläche um die Figur herum
+  contains(px, py) {
+    return px >= this.x - 7 && px < this.x + 7 && py >= this.y - 36 && py < this.y;
+  }
+
   update(dt) {
     if (!this.target) return;
     this.t += dt;
@@ -68,6 +74,7 @@ export class Actor {
     if (this.dir < 0) ctx.scale(-1, 1);
 
     box('rgba(0,0,0,0.35)', -7, -1, 14, 2);                 // Schatten
+    if (s.long_hair) box(s.hair, -5, -31, 5, 10);           // lange Haare hinter dem Körper
     box(s.pants, -4, -12, 3, frame === 0 ? 10 : 11);        // Beine
     box(s.pants, 1, -12, 3, frame === 1 ? 10 : 11);
     box(s.shoes, frame === 0 ? -6 : -5, -2, 4, 2);          // Schuhe
@@ -88,4 +95,13 @@ export class Actor {
     }
     ctx.restore();
   }
+}
+
+// Zeichnet eine Figur stehend auf eine eigene kleine Leinwand (Porträt-Knöpfe, Charakterwahl).
+export function drawPortrait(canvas, id, def) {
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const a = new Actor(id, def);
+  a.place(canvas.width / 2, canvas.height - 2);
+  a.draw(ctx);
 }

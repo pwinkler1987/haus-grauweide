@@ -13,7 +13,7 @@ export class Sound {
 
   play(name) {
     this.unlock();
-    const fn = { static: this.static, melody: this.melody, click: this.click }[name];
+    const fn = { static: this.static, melody: this.melody, click: this.click, owl: this.owl }[name];
     if (!fn) {
       console.warn('Unbekannter Sound:', name);
       return Promise.resolve();
@@ -58,6 +58,24 @@ export class Sound {
       }
     });
     return MELODY.length * step + 0.6;
+  }
+
+  owl(ac, t) {
+    // zwei weiche, abfallende Rufe
+    [[0, 0.45], [0.6, 0.8]].forEach(([offset, len]) => {
+      const osc = ac.createOscillator();
+      const g = ac.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(420, t + offset);
+      osc.frequency.exponentialRampToValueAtTime(330, t + offset + len);
+      g.gain.setValueAtTime(0.0001, t + offset);
+      g.gain.exponentialRampToValueAtTime(0.15, t + offset + 0.08);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + offset + len);
+      osc.connect(g).connect(ac.destination);
+      osc.start(t + offset);
+      osc.stop(t + offset + len + 0.05);
+    });
+    return 1.5;
   }
 
   click(ac, t) {
