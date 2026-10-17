@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Das Haus Grauweide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main id="game">
+    <div id="scene-wrap">
+      <canvas id="scene" width="320" height="144"></canvas>
+      <div id="speech" hidden></div>
+      <div id="narration" hidden><p></p><span class="hint">▼ Klick</span></div>
+      <div id="toast" hidden></div>
+      <div id="title">
+        <h1>Das Haus Grauweide</h1>
+        <p>Ein Spukhaus-Mysterium</p>
+        <p class="blink">Klicken zum Starten</p>
+      </div>
+    </div>
+    <div id="sentence">&nbsp;</div>
+    <div id="panel">
+      <div id="verbs"></div>
+      <div id="inventory"></div>
+    </div>
+    <div id="statusbar">
+      <span id="room-name"></span>
+      <span>1–9 Verben · H Hotspots · Rechtsklick: Standardaktion · F5 Speichern · F9 Laden</span>
+    </div>
+  </main>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

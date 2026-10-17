@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+game/saves/*.json
+.DS_Store
