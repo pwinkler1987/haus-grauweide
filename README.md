@@ -110,3 +110,28 @@ Baumhaus → Waldrand (Gruppe wählen) → Waldweg → Tor → Vorgarten → Hal
 
 Drei Enden: *Die nächste Sekunde* (gut), *Ohne Abschied* (neutral),
 *Zwischen zwei Sekunden* (schlecht). Gefundene Enden merkt sich der Browser.
+
+## Icons, Splash und Store-Grafiken
+
+Quellen sind `assets/icon.png` (128×128) und `assets/feature.png` (512×250), beide in Pixel-Art.
+`python3 tools/make_assets.py` erzeugt daraus die Android-Icons (inkl. adaptiver Icons) und
+Splash-Screens, das iOS-App-Icon und den Splash sowie unter `store/` das Play-Icon (512),
+die Feature-Grafik (1024×500) und das App-Store-Icon (1024). Store-Screenshots liegen in
+`store/screenshots/` (Play: 2160×1080, iPhone 6,9": 2868×1320). Die iOS-App ist nur für
+iPhone eingestellt (auf dem iPad läuft sie im Kompatibilitätsmodus).
+
+## Android-Release signieren
+
+Der Upload-Schlüssel gehört nicht ins Git. Lege `grauweide-upload.jks` in `android/` und
+daneben `android/keystore.properties` an:
+
+```
+storeFile=grauweide-upload.jks
+storePassword=…
+keyAlias=upload
+keyPassword=…
+```
+
+Dann `npm run sync:release` und `cd android && gradlew.bat bundleRelease`
+→ `android/app/build/outputs/bundle/release/app-release.aab`. Ohne `keystore.properties`
+entsteht ein unsigniertes Bundle.
