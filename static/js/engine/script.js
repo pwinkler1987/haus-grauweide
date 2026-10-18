@@ -15,7 +15,7 @@
 
 const COMMANDS = new Set([
   'say', 'sayas', 'narrate', 'set', 'unset', 'take', 'drop', 'goto', 'party_goto',
-  'place', 'remove', 'choose', 'sound', 'wait',
+  'place', 'remove', 'choose', 'sound', 'wait', 'dialog', 'walk', 'face', 'codelock',
 ]);
 
 export class ScriptRunner {
@@ -83,6 +83,22 @@ export class ScriptRunner {
       }
       case 'remove': return g.removeActor(arg);
       case 'choose': return g.chooseParty(Number(arg));
+      case 'dialog': return g.runDialog(arg);
+      case 'walk': {
+        const [who, pos] = arg.split(':');
+        const [x, y] = pos.split(',').map(Number);
+        return g.actors[who]?.walkTo(x, y);
+      }
+      case 'face': {
+        const [who, dir] = arg.split(':');
+        if (g.actors[who]) g.actors[who].dir = dir === 'left' ? -1 : 1;
+        return;
+      }
+      case 'codelock': {
+        const [code, flag] = arg.split(':');
+        if (await g.codeLock(code)) g.state.flags[flag] = true;
+        return;
+      }
     }
   }
 }

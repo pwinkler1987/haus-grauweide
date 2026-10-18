@@ -13,7 +13,7 @@ export class Sound {
 
   play(name) {
     this.unlock();
-    const fn = { static: this.static, melody: this.melody, click: this.click, owl: this.owl }[name];
+    const fn = { static: this.static, melody: this.melody, click: this.click, owl: this.owl, tick: this.tick }[name];
     if (!fn) {
       console.warn('Unbekannter Sound:', name);
       return Promise.resolve();
@@ -76,6 +76,23 @@ export class Sound {
       osc.stop(t + offset + len + 0.05);
     });
     return 1.5;
+  }
+
+  tick(ac, t) {
+    // vier hölzerne Uhr-Ticks
+    for (let i = 0; i < 4; i++) {
+      const start = t + i * 0.5;
+      const osc = ac.createOscillator();
+      const g = ac.createGain();
+      osc.type = 'triangle';
+      osc.frequency.value = i % 2 ? 1500 : 1900;
+      g.gain.setValueAtTime(0.12, start);
+      g.gain.exponentialRampToValueAtTime(0.0001, start + 0.04);
+      osc.connect(g).connect(ac.destination);
+      osc.start(start);
+      osc.stop(start + 0.05);
+    }
+    return 2;
   }
 
   click(ac, t) {

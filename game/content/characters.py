@@ -73,4 +73,25 @@ CHARACTERS = {
             "talk": "sayas:lena:Wenn's brenzlig wird: Ich bin schneller weg als ihr alle.",
         },
     },
+
+    # --- Nicht spielbare Figuren (npc) -----------------------------------
+    "anselm": {
+        "name": "Herr Brack", "npc": True,
+        "text_color": "#c8e6c9",
+        "sprite": {"skin": "#e8d5c0", "hair": "#bbbbbb", "cap": "#4a5a3a", "ghost": True,
+                   "jacket": "#5d6b4a", "pants": "#4a3a2a", "shoes": "#2a2a2a"},
+        "actions": {
+            "look": "Ein alter Mann mit grüner Schürze. Er ist... ein kleines bisschen durchsichtig.",
+            "talk": "dialog:anselm",
+            "take": "Lieber nicht anfassen.",
+        },
+    },
+    "ottilie": {
+        "name": "Gestalt", "npc": True,
+        "text_color": "#a8e8ff",
+        "sprite": {"skin": "#f0dcc8", "hair": "#eeeeee", "cap": None, "long_hair": True,
+                   "ghost": True, "goggles": "#7fd8ff",
+                   "jacket": "#e8e8e8", "pants": "#555566", "shoes": "#333333"},
+        "actions": {"look": "Sie flimmert wie ein schlecht eingestellter Fernseher."},
+    },
 }

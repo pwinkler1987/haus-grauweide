@@ -68,4 +68,16 @@ ITEMS = {
             "use": "Die ist schon an.",
         },
     },
+    "spaten": {
+        "name": "Spaten",
+        "icon": [("rect", 2, 7, 14, 2, "#8a6238"), ("rect", 1, 5, 3, 6, "#8a6238"),
+                 ("poly", [(16, 4), (23, 5), (23, 11), (16, 12)], "#9a9aa2")],
+        "actions": {"look": "Ein alter Spaten. Taugt bestimmt auch als Hebel."},
+    },
+    "leiter": {
+        "name": "Leiter",
+        "icon": [("rect", 1, 4, 22, 2, "#8a6238"), ("rect", 1, 11, 22, 2, "#8a6238"),
+                 *[("rect", x, 6, 2, 5, "#6e4a2c") for x in range(3, 22, 4)]],
+        "actions": {"look": "Eine lange Holzleiter. Frag nicht, wie die in meine Jackentasche passt."},
+    },
 }

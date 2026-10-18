@@ -70,6 +70,7 @@ export class Actor {
     const box = (c, x, y, w, h) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
 
     ctx.save();
+    if (s.ghost) ctx.globalAlpha = 0.45 + 0.15 * Math.sin(performance.now() / 300);
     ctx.translate(Math.round(this.x), Math.round(this.y));
     if (this.dir < 0) ctx.scale(-1, 1);
 
@@ -89,6 +90,7 @@ export class Actor {
     box(s.hair, -4, -33, 8, 3);
     box(s.hair, -4, -31, 2, 4);
     box('#222', 2, -29, 1, 1);                              // Auge
+    if (s.goggles) box(s.goggles, 0, -30, 5, 2);            // Schutzbrille
     if (s.cap) {                                            // verkehrt herum getragene Kappe
       box(s.cap, -5, -35, 9, 3);
       box(s.cap, -8, -33, 4, 1);

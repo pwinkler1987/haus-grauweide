@@ -39,6 +39,9 @@ class Game {
       toast: document.getElementById('toast'),
       party: document.getElementById('party'),
       chooser: document.getElementById('chooser'),
+      panel: document.getElementById('panel'),
+      dialog: document.getElementById('dialog'),
+      codelock: document.getElementById('codelock'),
     };
 
     const lead = data.start.character;
@@ -185,7 +188,9 @@ class Game {
   chooseParty(count) {
     const el = this.el.chooser;
     const lead = this.state.party[0];
-    const candidates = Object.keys(this.data.characters).filter((id) => id !== lead);
+    const candidates = Object.entries(this.data.characters)
+      .filter(([id, def]) => id !== lead && !def.npc)
+      .map(([id]) => id);
     const chosen = new Set();
     el.innerHTML = '';
     const title = document.createElement('h2');
@@ -233,6 +238,89 @@ class Game {
         );
         resolve();
       }, { once: true });
+    });
+  }
+
+  // ---- Dialoge ----------------------------------------------------------
+  // Läuft, bis eine Antwort mit "end" gewählt wird oder keine Antwort übrig ist.
+  async runDialog(id) {
+    const dlg = this.data.dialogs[id];
+    let nodeId = dlg.start;
+    let entered = true;
+    while (nodeId) {
+      const node = dlg.nodes[nodeId];
+      if (entered && node.intro) await this.script.run(node.intro);
+      const options = node.options
+        .map((o, i) => ({ ...o, key: `dlg_${id}_${nodeId}_${i}` }))
+        .filter((o) => this.script.check(o.if) && !(o.once && this.state.flags[o.key]));
+      if (!options.length) break;
+      const o = await this.pickOption(options);
+      if (o.once) this.state.flags[o.key] = true;
+      await this.say(o.text);
+      await this.script.run(o.do);
+      entered = !!o.goto && o.goto !== nodeId;
+      nodeId = o.end ? null : (o.goto ?? nodeId);
+    }
+  }
+
+  // Zeigt die Antwortmöglichkeiten anstelle der Verb-Leiste (Klick oder Taste 1–9).
+  pickOption(options) {
+    const el = this.el.dialog;
+    el.innerHTML = '';
+    this.el.panel.hidden = true;
+    el.hidden = false;
+    return new Promise((resolve) => {
+      const choose = (o) => {
+        el.hidden = true;
+        this.el.panel.hidden = false;
+        this.pickByKey = null;
+        resolve(o);
+      };
+      options.forEach((o, i) => {
+        const b = document.createElement('button');
+        b.textContent = `${i + 1}. ${o.text}`;
+        b.addEventListener('click', () => choose(o));
+        el.appendChild(b);
+      });
+      this.pickByKey = (n) => options[n] && choose(options[n]);
+    });
+  }
+
+  // ---- Zahlenschloss ----------------------------------------------------
+  codeLock(code) {
+    const el = this.el.codelock;
+    const digits = Array(code.length).fill(0);
+    el.innerHTML = '<h2>Das Messingrad</h2><div class="wheels"></div><div class="buttons"></div>';
+    const wheels = el.querySelector('.wheels');
+    digits.forEach((_, i) => {
+      const w = document.createElement('div');
+      w.className = 'wheel';
+      const up = document.createElement('button');
+      const val = document.createElement('span');
+      const down = document.createElement('button');
+      up.textContent = '▲';
+      down.textContent = '▼';
+      val.textContent = '0';
+      const turn = (d) => {
+        digits[i] = (digits[i] + d + 10) % 10;
+        val.textContent = digits[i];
+        this.sound.play('click');
+      };
+      up.addEventListener('click', () => turn(1));
+      down.addEventListener('click', () => turn(-1));
+      w.append(up, val, down);
+      wheels.appendChild(w);
+    });
+    el.hidden = false;
+    return new Promise((resolve) => {
+      const close = (ok) => { el.hidden = true; resolve(ok); };
+      const buttons = el.querySelector('.buttons');
+      for (const [label, fn] of [['Drehen', () => close(digits.join('') === code)], ['Abbrechen', () => close(false)]]) {
+        const b = document.createElement('button');
+        b.textContent = label;
+        b.addEventListener('click', fn);
+        buttons.appendChild(b);
+      }
     });
   }
 
@@ -445,7 +533,8 @@ class Game {
     this.el.narration.addEventListener('click', () => this.skip?.());
 
     window.addEventListener('keydown', (e) => {
-      if (!this.el.chooser.hidden) return;
+      if (!this.el.chooser.hidden || !this.el.codelock.hidden) return;
+      if (this.pickByKey && e.key >= '1' && e.key <= '9') { this.pickByKey(Number(e.key) - 1); return; }
       if (e.key === 'F5') { e.preventDefault(); this.save(); return; }
       if (e.key === 'F9') { e.preventDefault(); this.load(); return; }
       if (e.key === 'Escape' || e.key === ' ' || e.key === '.') {

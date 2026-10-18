@@ -28,6 +28,7 @@ Benötigt nur Python 3.10+ (keine Zusatzpakete) und einen modernen Browser.
 
 - `game/content/` – **Inhalte in Python**: Figuren, Gegenstände, ein Modul pro Raum.
   Änderungen werden beim Neuladen des Browsers übernommen.
+- `game/content/dialogs.py` – Dialogbäume (Knoten, Antworten, Bedingungen).
 - `game/validate.py` – findet Tippfehler (unbekannte Räume, Gegenstände).
 - `game/server.py` – Webserver + Speicher-API.
 - `static/js/engine/` – die Engine im Browser (Zeichnen, Laufen, Verben, Skripte, Sound).
@@ -50,10 +51,16 @@ Neue Datei `game/content/rooms/mein_raum.py` mit einer Variable `ROOM`
 | `"party_goto:raum"` | alle Gruppenmitglieder im Raum ziehen gemeinsam weiter |
 | `"place:figur:raum[:x,y]"` / `"remove:figur"` | Figur platzieren / entfernen |
 | `"choose:2"` | Charakterwahl-Bildschirm |
-| `"sound:name"` / `"wait:ms"` | Klang (static, melody, click, owl) / Pause |
+| `"dialog:anselm"` | Dialogbaum starten (siehe `game/content/dialogs.py`) |
+| `"walk:figur:x,y"` / `"face:figur:left"` | Figur in einer Zwischensequenz bewegen / drehen |
+| `"codelock:2313:flag"` | Zahlenschloss; bei richtigem Code wird das Flag gesetzt |
+| `"sound:name"` / `"wait:ms"` | Klang (static, melody, click, owl, tick) / Pause |
 
 Listen von Aktionen laufen nacheinander. Bedingt: `{"if": …, "do": …, "else": …}` mit
 `flag:x`, `has:item`, `char:figur` (wird gespielt), `party:figur` (ist dabei),
 `here:2` (mind. 2 aus der Gruppe im Raum) – mit `!` verneint, als Liste UND-verknüpft.
 
 Jede Figur hat ein eigenes Inventar; mit „Gib X an <Figur>“ wandern Gegenstände weiter.
+
+Nicht spielbare Figuren stehen ebenfalls in `characters.py` (mit `"npc": True`);
+`"ghost": True` im Sprite macht sie halb durchsichtig.

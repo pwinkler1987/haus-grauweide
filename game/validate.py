@@ -24,6 +24,7 @@ def _conditions(cond):
 
 def validate(data):
     rooms, items, chars = data["rooms"], data["items"], data["characters"]
+    dialogs = data.get("dialogs", {})
     problems = []
 
     def check(where, action):
@@ -38,7 +39,11 @@ def validate(data):
             cmd, _, arg = s.partition(":")
             if cmd in ("goto", "party_goto") and arg.split(":")[0] not in rooms:
                 problems.append(f"{where}: Raum '{arg}' existiert nicht")
-            if cmd in ("sayas", "place", "remove") and arg.split(":")[0] not in chars:
+            if cmd == "dialog" and arg not in dialogs:
+                problems.append(f"{where}: Dialog '{arg}' existiert nicht")
+            if cmd == "codelock" and (len(arg.split(":")) != 2 or not arg.split(":")[0].isdigit()):
+                problems.append(f"{where}: codelock braucht 'ziffern:flag'")
+            if cmd in ("sayas", "place", "remove", "walk", "face") and arg.split(":")[0] not in chars:
                 problems.append(f"{where}: Figur '{arg.split(':')[0]}' existiert nicht")
             if cmd == "place" and arg.split(":")[1:2] and arg.split(":")[1] not in rooms:
                 problems.append(f"{where}: Raum '{arg.split(':')[1]}' existiert nicht")
@@ -66,6 +71,18 @@ def validate(data):
     for cid, char in chars.items():
         for verb, action in char.get("actions", {}).items():
             check(f"Figur {cid}/{verb}", action)
+
+    for did, dlg in dialogs.items():
+        if dlg.get("start") not in dlg.get("nodes", {}):
+            problems.append(f"Dialog {did}: Startknoten '{dlg.get('start')}' fehlt")
+        for nid, node in dlg.get("nodes", {}).items():
+            check(f"Dialog {did}/{nid} (intro)", node.get("intro"))
+            for i, opt in enumerate(node.get("options", [])):
+                where = f"Dialog {did}/{nid}/{i}"
+                check(where, {"if": opt["if"]} if "if" in opt else None)
+                check(where, opt.get("do"))
+                if "goto" in opt and opt["goto"] not in dlg["nodes"]:
+                    problems.append(f"{where}: Knoten '{opt['goto']}' fehlt")
 
     for iid, item in items.items():
         for verb, action in item.get("actions", {}).items():
