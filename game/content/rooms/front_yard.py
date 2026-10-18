@@ -108,7 +108,7 @@ ROOM = {
          "actions": {"look": "Ein alter Klingelknopf aus Messing.",
                      "push": ["sound:click", "wait:600",
                               "say:Ding-dong... Das Echo klingt nach einem sehr großen, sehr leeren Haus."]}},
-        {"id": "schacht", "name": "Klappe im Sockel", "rect": (82, 86, 22, 16), "walk_to": (93, 116),
+        {"id": "schacht", "name": "Klappe im Sockel", "rect": (82, 73, 22, 28), "walk_to": (93, 116),
          "default": "walk",
          "actions": {
              "look": {"if": "flag:chute_open",
