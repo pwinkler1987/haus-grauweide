@@ -6,6 +6,15 @@ const midi = (n) => 440 * 2 ** ((n - 69) / 12);
 const MELODY = [76, 79, 83, 81, 79, 76, 74, 76, 72, 74, 76, 79, 78, 74, 71];
 
 export class Sound {
+  constructor() {
+    // App im Hintergrund oder Tab verdeckt: Ton anhalten.
+    document.addEventListener('visibilitychange', () => {
+      if (!this.ctx) return;
+      if (document.hidden) this.ctx.suspend();
+      else this.ctx.resume();
+    });
+  }
+
   unlock() {
     if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
     if (this.ctx.state === 'suspended') this.ctx.resume();

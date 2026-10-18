@@ -11,18 +11,37 @@ python main.py --port 8080 --no-browser
 
 Benötigt nur Python 3.10+ (keine Zusatzpakete) und einen modernen Browser.
 
+## iOS- und Android-App
+
+Die Apps verpacken dasselbe Spiel mit [Capacitor](https://capacitorjs.com).
+`tools/build_web.py` baut daraus eine statische Seite in `www/`: `static/` plus
+die Python-Inhalte als `data.json`. Ein Server wird nicht gebraucht, Spielstände
+liegen auf dem Gerät.
+
+```bash
+npm install          # einmalig (Node 22+)
+npm run sync         # www/ bauen und in android/ und ios/ kopieren
+npm run android      # … und Android Studio öffnen
+npm run ios          # … und Xcode öffnen (nur macOS)
+```
+
+Android-Build ohne Android Studio: `cd android && ./gradlew assembleDebug`
+(Windows: `gradlew.bat assembleDebug`, braucht JDK 21).
+App-ID: `de.pwinkler.grauweide`, nur Querformat.
+
 ## Steuerung
 
 | Eingabe | Wirkung |
 |---|---|
 | Klick auf Verb, dann Objekt | Aktion ausführen („Schau an Radio“) |
 | Benutze/Gib + Gegenstand + Ziel | „Benutze Batterien mit Taschenlampe“ |
-| Rechtsklick | Standardaktion (meist „Schau an“) |
+| Rechtsklick / lange drücken | Standardaktion (meist „Schau an“) |
 | Tasten 1–9 | Verben |
 | Tab / Porträt-Knöpfe | Figur wechseln |
 | H | Hotspots anzeigen |
 | Leertaste / Klick | Text überspringen |
 | F5 / F9 | Speichern / Laden |
+| ☰ (oben links) | Menü: Speichern, Laden, Hotspots, Neues Spiel (Android: Zurück-Taste) |
 
 ## Aufbau
 
@@ -31,7 +50,9 @@ Benötigt nur Python 3.10+ (keine Zusatzpakete) und einen modernen Browser.
 - `game/content/dialogs.py` – Dialogbäume (Knoten, Antworten, Bedingungen).
 - `game/content/endings.py` – die drei Enden mit Abspann.
 - `game/validate.py` – findet Tippfehler (unbekannte Räume, Gegenstände).
-- `game/server.py` – Webserver + Speicher-API.
+- `game/server.py` – Entwicklungs-Webserver (liefert `data.json` immer frisch).
+- `tools/build_web.py` – baut `www/` für die Apps.
+- `android/`, `ios/` – native Projekte (Capacitor).
 - `static/js/engine/` – die Engine im Browser (Zeichnen, Laufen, Verben, Skripte, Sound).
 
 ## Einen Raum anlegen

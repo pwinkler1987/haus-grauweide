@@ -2,10 +2,8 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <title>Das Haus Grauweide</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -18,11 +16,14 @@
       <div id="chooser" hidden></div>
       <div id="codelock" hidden></div>
       <div id="ending" hidden></div>
+      <div id="menu" hidden></div>
       <div id="title">
         <h1>Das Haus Grauweide</h1>
         <p>Ein Spukhaus-Mysterium</p>
         <p class="blink">Klicken zum Starten</p>
+        <button id="continue" hidden>Spielstand laden</button>
       </div>
+      <button id="menu-btn" aria-label="Menü">☰</button>
     </div>
     <div id="sentence">&nbsp;</div>
     <div id="panel">
@@ -33,9 +34,10 @@
     <div id="party"></div>
     <div id="statusbar">
       <span id="room-name"></span>
-      <span>1–9 Verben · Tab Figur wechseln · H Hotspots · Rechtsklick: Standardaktion · F5 Speichern · F9 Laden</span>
+      <span class="keys">1–9 Verben · Tab Figur wechseln · H Hotspots · Rechtsklick: Standardaktion · F5 Speichern · F9 Laden</span>
     </div>
   </main>
+  <div id="rotate">Bitte das Gerät quer halten.</div>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>

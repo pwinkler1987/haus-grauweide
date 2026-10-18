@@ -6,10 +6,13 @@ import { VerbBar, VERB_LABEL, PREPOSITION } from './engine/verbs.js';
 import { InventoryView } from './engine/inventory.js';
 import { ScriptRunner } from './engine/script.js';
 import { Sound } from './engine/audio.js';
+import { onPress } from './engine/press.js';
+import { getJSON, setJSON } from './engine/storage.js';
 
 const W = 320;
 const H = 144;
-const SAVE_SLOT = 'slot1';
+const SAVE_KEY = 'grauweide_save_slot1';
+const ENDINGS_KEY = 'grauweide_endings';
 
 // Antworten, wenn ein Objekt für ein Verb nichts Eigenes festlegt.
 const DEFAULT_REPLY = {
@@ -43,6 +46,7 @@ class Game {
       dialog: document.getElementById('dialog'),
       codelock: document.getElementById('codelock'),
       ending: document.getElementById('ending'),
+      menu: document.getElementById('menu'),
     };
 
     const lead = data.start.character;
@@ -327,18 +331,15 @@ class Game {
 
   // ---- Enden ------------------------------------------------------------
   // Zeigt den Ende-Bildschirm. Das Promise bleibt offen: Das Spiel ist vorbei.
-  showEnding(id) {
+  async showEnding(id) {
     const end = this.data.endings[id];
     const names = this.state.party.slice(1).map((p) => this.data.characters[p].name);
     const party = names.length ? names.join(' und ') : 'den anderen';
     const fill = (t) => t.replaceAll('{party}', party);
 
-    const found = new Set();
-    try {
-      for (const e of JSON.parse(localStorage.getItem('grauweide_endings') ?? '[]')) found.add(e);
-      found.add(id);
-      localStorage.setItem('grauweide_endings', JSON.stringify([...found]));
-    } catch { found.add(id); }
+    const found = new Set(await getJSON(ENDINGS_KEY, []));
+    found.add(id);
+    try { await setJSON(ENDINGS_KEY, [...found]); } catch (err) { console.warn(err); }
 
     const el = this.el.ending;
     el.className = `kind-${end.kind}`;
@@ -361,10 +362,10 @@ class Game {
     }
     add('p', `Gefundene Enden: ${found.size} von ${Object.keys(this.data.endings).length}`, 'count');
     const buttons = add('div', '', 'buttons');
-    for (const [label, href] of [['Nochmal von vorn', '/'], ['Letzten Spielstand laden', '/?load=1']]) {
+    for (const [label, query] of [['Nochmal von vorn', ''], ['Letzten Spielstand laden', '?load=1']]) {
       const b = document.createElement('button');
       b.textContent = label;
-      b.addEventListener('click', () => { window.location.href = href; });
+      b.addEventListener('click', () => { window.location.href = window.location.pathname + query; });
       buttons.appendChild(b);
     }
     el.hidden = false;
@@ -540,19 +541,20 @@ class Game {
     if (this.busy) return this.toast('Gerade nicht möglich.');
     const actors = Object.fromEntries(Object.values(this.actors).map((a) =>
       [a.id, { room: a.room, x: Math.round(a.x), y: Math.round(a.y), dir: a.dir }]));
-    const res = await fetch('/api/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slot: SAVE_SLOT, state: { ...this.state, actors } }),
-    });
-    this.toast(res.ok ? 'Gespeichert.' : 'Speichern fehlgeschlagen.');
+    try {
+      await setJSON(SAVE_KEY, { ...this.state, actors });
+      this.toast('Gespeichert.');
+    } catch (err) {
+      console.error(err);
+      this.toast('Speichern fehlgeschlagen.');
+    }
   }
 
   async load() {
     if (this.busy) return this.toast('Gerade nicht möglich.');
-    const res = await fetch(`/api/load?slot=${SAVE_SLOT}`);
-    if (!res.ok) return this.toast('Kein Spielstand gefunden.');
-    const { actors, ...state } = await res.json();
+    const saved = await getJSON(SAVE_KEY);
+    if (!saved) return this.toast('Kein Spielstand gefunden.');
+    const { actors, ...state } = saved;
     if (!actors) return this.toast('Spielstand ist zu alt.');
     this.state = state;
     this.actors = {};
@@ -579,12 +581,20 @@ class Game {
       if (obj?.id !== this.hover?.id) { this.hover = obj; this.updateSentence(); }
     });
     c.addEventListener('mouseleave', () => { this.hover = null; this.updateSentence(); });
-    c.addEventListener('click', (e) => this.onSceneClick(e, false));
-    c.addEventListener('contextmenu', (e) => { e.preventDefault(); this.onSceneClick(e, true); });
+    onPress(c, {
+      tap: (e) => this.onSceneClick(e, false),
+      long: (e) => this.onSceneClick(e, true),
+      down: (e) => {
+        if (this.busy) return;
+        this.hover = this.objectAt(...this.scenePos(e));
+        this.updateSentence();
+      },
+    });
     this.el.narration.addEventListener('click', () => this.skip?.());
+    this.bindMenu();
 
     window.addEventListener('keydown', (e) => {
-      if (!this.el.chooser.hidden || !this.el.codelock.hidden) return;
+      if (!this.el.chooser.hidden || !this.el.codelock.hidden || !this.el.menu.hidden) return;
       if (this.pickByKey && e.key >= '1' && e.key <= '9') { this.pickByKey(Number(e.key) - 1); return; }
       if (e.key === 'F5') { e.preventDefault(); this.save(); return; }
       if (e.key === 'F9') { e.preventDefault(); this.load(); return; }
@@ -602,6 +612,34 @@ class Game {
       if (e.key === 'h' || e.key === 'H') this.showHotspots = !this.showHotspots;
       if (e.key >= '1' && e.key <= '9') this.verbs.setByIndex(Number(e.key) - 1);
     });
+  }
+
+  // ---- Menü (für Touch, wo es kein F5/F9/H/Tab gibt) ---------------------
+  bindMenu() {
+    const el = this.el.menu;
+    const entries = [
+      ['Weiterspielen', () => {}],
+      ['Speichern', () => this.save()],
+      ['Laden', () => this.load()],
+      ['Hotspots an/aus', () => { this.showHotspots = !this.showHotspots; }],
+      ['Neues Spiel', () => { window.location.href = window.location.pathname; }],
+    ];
+    el.innerHTML = '<h2>Menü</h2>';
+    for (const [label, fn] of entries) {
+      const b = document.createElement('button');
+      b.textContent = label;
+      b.addEventListener('click', () => { this.toggleMenu(false); fn(); });
+      el.appendChild(b);
+    }
+    document.getElementById('menu-btn').addEventListener('click', () => this.toggleMenu(true));
+    window.Capacitor?.Plugins?.App?.addListener?.('backButton', () => {
+      if (this.skip) this.skip();
+      else this.toggleMenu(this.el.menu.hidden);
+    });
+  }
+
+  toggleMenu(open) {
+    this.el.menu.hidden = !open;
   }
 
   onSceneClick(e, quick) {
@@ -643,7 +681,7 @@ class Game {
 }
 
 async function boot() {
-  const res = await fetch('/api/data');
+  const res = await fetch('data.json');
   const data = await res.json();
   const game = new Game(data);
   window.adventure = game; // zum Ausprobieren in der Browser-Konsole
@@ -652,16 +690,23 @@ async function boot() {
   const title = document.getElementById('title');
   if (new URLSearchParams(window.location.search).has('load')) {
     title.hidden = true;
-    history.replaceState(null, '', '/');
+    history.replaceState(null, '', window.location.pathname);
     await game.load();
     if (!game.room) game.enterRoom(data.start.room);
     return;
   }
-  title.addEventListener('click', () => {
+  const begin = async (load) => {
     title.hidden = true;
     game.sound.unlock();
-    game.enterRoom(data.start.room);
-  }, { once: true });
+    if (load) await game.load();
+    if (!game.room) game.enterRoom(data.start.room);
+  };
+  const continueBtn = document.getElementById('continue');
+  if (await getJSON(SAVE_KEY)) {
+    continueBtn.hidden = false;
+    continueBtn.addEventListener('click', (e) => { e.stopPropagation(); begin(true); }, { once: true });
+  }
+  title.addEventListener('click', () => begin(false), { once: true });
 }
 
 boot();
