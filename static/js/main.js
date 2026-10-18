@@ -8,6 +8,7 @@ import { ScriptRunner } from './engine/script.js';
 import { Sound } from './engine/audio.js';
 import { onPress } from './engine/press.js';
 import { getJSON, setJSON } from './engine/storage.js';
+import { Shop } from './engine/shop.js';
 
 const W = 320;
 const H = 144;
@@ -57,6 +58,7 @@ class Game {
     this.room = null;
     this.script = new ScriptRunner(this);
     this.sound = new Sound();
+    this.shop = new Shop();
     this.busyCount = 0;     // > 0 während Skripte/Zwischensequenzen laufen
     this.skip = null;       // beendet den aktuellen Text vorzeitig
     this.hover = null;      // Objekt unter der Maus
@@ -125,6 +127,7 @@ class Game {
 
   async enterRoom(id, pos) {
     if (!this.data.rooms[id]) { console.error('Raum fehlt:', id); return; }
+    if (this.room) await this.shop.maybeShowAd();
     this.actor.room = id;
     this.actor.place(...(pos ?? this.data.rooms[id].start));
     this.showRoom(id);
@@ -135,6 +138,7 @@ class Game {
   async partyGoto(id) {
     const room = this.data.rooms[id];
     if (!room) { console.error('Raum fehlt:', id); return; }
+    await this.shop.maybeShowAd();
     const [sx, sy] = room.start;
     this.partyHere().forEach((who, i) => {
       const a = this.actors[who];
@@ -616,21 +620,6 @@ class Game {
 
   // ---- Menü (für Touch, wo es kein F5/F9/H/Tab gibt) ---------------------
   bindMenu() {
-    const el = this.el.menu;
-    const entries = [
-      ['Weiterspielen', () => {}],
-      ['Speichern', () => this.save()],
-      ['Laden', () => this.load()],
-      ['Hotspots an/aus', () => { this.showHotspots = !this.showHotspots; }],
-      ['Neues Spiel', () => { window.location.href = window.location.pathname; }],
-    ];
-    el.innerHTML = '<h2>Menü</h2>';
-    for (const [label, fn] of entries) {
-      const b = document.createElement('button');
-      b.textContent = label;
-      b.addEventListener('click', () => { this.toggleMenu(false); fn(); });
-      el.appendChild(b);
-    }
     document.getElementById('menu-btn').addEventListener('click', () => this.toggleMenu(true));
     window.Capacitor?.Plugins?.App?.addListener?.('backButton', () => {
       if (this.skip) this.skip();
@@ -639,7 +628,51 @@ class Game {
   }
 
   toggleMenu(open) {
+    if (open) this.renderMenu();
     this.el.menu.hidden = !open;
+  }
+
+  renderMenu() {
+    const shop = this.shop;
+    const entries = [
+      ['Weiterspielen', () => {}],
+      ['Speichern', () => this.save()],
+      ['Laden', () => this.load()],
+      ['Hotspots an/aus', () => { this.showHotspots = !this.showHotspots; }],
+      ['Neues Spiel', () => { window.location.href = window.location.pathname; }],
+    ];
+    if (shop.canBuy) {
+      entries.push([`${shop.product.title} – ${shop.product.priceString}`, () => this.buyNoAds()]);
+      entries.push(['Kauf wiederherstellen', () => this.restoreNoAds()]);
+    }
+    if (shop.privacyForm && !shop.noAds) entries.push(['Datenschutz-Einstellungen', () => shop.showPrivacyOptions()]);
+    const el = this.el.menu;
+    el.innerHTML = '<h2>Menü</h2>';
+    for (const [label, fn] of entries) {
+      const b = document.createElement('button');
+      b.textContent = label;
+      b.addEventListener('click', () => { this.toggleMenu(false); fn(); });
+      el.appendChild(b);
+    }
+  }
+
+  async buyNoAds() {
+    try {
+      await this.shop.buy();
+      this.toast('Danke! Die Werbung ist weg.');
+    } catch (err) {
+      console.warn('Kauf:', err);
+      this.toast('Kauf abgebrochen.');
+    }
+  }
+
+  async restoreNoAds() {
+    try {
+      this.toast(await this.shop.restore() ? 'Kauf wiederhergestellt.' : 'Kein Kauf gefunden.');
+    } catch (err) {
+      console.warn('Wiederherstellen:', err);
+      this.toast('Wiederherstellen fehlgeschlagen.');
+    }
   }
 
   onSceneClick(e, quick) {
@@ -720,6 +753,7 @@ async function boot() {
   const data = await res.json();
   await loadRoomImages(data.rooms);
   const game = new Game(data);
+  game.shop.init();
   window.adventure = game; // zum Ausprobieren in der Browser-Konsole
   game.start();
 

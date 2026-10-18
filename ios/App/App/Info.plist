@@ -67,5 +67,17 @@
 	<true/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<!-- Google-Test-App-ID; für den Release die echte AdMob-App-ID eintragen -->
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-3940256099942544~1458002511</string>
+	<key>SKAdNetworkItems</key>
+	<array>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>cstr6suwn9.skadnetwork</string>
+		</dict>
+	</array>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Damit kann dir passendere Werbung angezeigt werden. Ohne Werbung geht es mit dem Kauf „Werbung entfernen“.</string>
 </dict>
 </plist>
