@@ -437,6 +437,13 @@ html, body {
     padding: 4px;
   }
   #dialog button { font-size: 20px; padding: 4px 2px; line-height: 1; }
+  #menu {
+    position: fixed;
+    z-index: 9;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    justify-content: safe center;
+    overflow-y: auto;
+  }
   #statusbar { display: none; }
   #speech { font-size: 18px; }
   #narration { font-size: 18px; inset: 6% 8%; }
