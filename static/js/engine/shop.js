@@ -59,9 +59,14 @@ export class Shop {
   async startAds() {
     const ads = plugins().AdMob;
     if (!ads) return;
-    const consent = await ads.requestConsentInfo();
-    if (consent.status === 'REQUIRED' && consent.isConsentFormAvailable) await ads.showConsentForm();
-    this.privacyForm = consent.privacyOptionsRequirementStatus === 'REQUIRED';
+    try {
+      const consent = await ads.requestConsentInfo();
+      if (consent.status === 'REQUIRED' && consent.isConsentFormAvailable) await ads.showConsentForm();
+      this.privacyForm = consent.privacyOptionsRequirementStatus === 'REQUIRED';
+    } catch (err) {
+      // z. B. keine DSGVO-Mitteilung in AdMob angelegt; Werbung trotzdem laden
+      console.warn('Einwilligung:', err);
+    }
     if (platform() === 'ios' && (await ads.trackingAuthorizationStatus()).status === 'notDetermined') {
       await ads.requestTrackingAuthorization();
     }
