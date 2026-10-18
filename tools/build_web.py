@@ -1,8 +1,9 @@
 """Baut das Spiel als statische Seite nach www/ (für die iOS- und Android-App).
 
-    python tools/build_web.py
+    python tools/build_web.py [--release]
 
 Kopiert static/ und schreibt die Python-Inhalte als www/data.json.
+Ohne --release zeigt die App nur Test-Werbung von Google.
 Bricht ab, wenn validate() Probleme findet.
 """
 import json
@@ -29,8 +30,11 @@ def main():
     if OUT.exists():
         shutil.rmtree(OUT)
     shutil.copytree(ROOT / "static", OUT)
+    if "--release" in sys.argv[1:]:
+        (OUT / "js" / "engine" / "ads-config.js").write_text("export const TEST_ADS = false;\n", encoding="utf-8")
     (OUT / "data.json").write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-    print(f"Gebaut: {OUT.relative_to(ROOT)}/ ({len(data['rooms'])} Räume)")
+    kind = "Release" if "--release" in sys.argv[1:] else "Test-Werbung"
+    print(f"Gebaut: {OUT.relative_to(ROOT)}/ ({len(data['rooms'])} Räume, {kind})")
 
 
 if __name__ == "__main__":

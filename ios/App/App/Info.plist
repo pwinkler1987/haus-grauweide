@@ -67,9 +67,8 @@
 	<true/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<!-- Google-Test-App-ID; für den Release die echte AdMob-App-ID eintragen -->
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-3940256099942544~1458002511</string>
+	<string>ca-app-pub-3910049405256581~2310915591</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>

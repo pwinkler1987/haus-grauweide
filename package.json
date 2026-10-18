@@ -6,6 +6,7 @@
   "scripts": {
     "build": "python3 tools/build_web.py",
     "sync": "npm run build && cap sync",
+    "sync:release": "python3 tools/build_web.py --release && cap sync",
     "android": "npm run sync && cap open android",
     "ios": "npm run sync && cap open ios"
   },

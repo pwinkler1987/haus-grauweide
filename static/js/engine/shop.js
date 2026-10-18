@@ -1,12 +1,14 @@
 // Werbung (AdMob) und der Kauf „Werbung entfernen“. Beides gibt es nur in der
 // App; im Browser bleibt das Spiel werbefrei und ohne Kauf.
 import { getItem, setItem } from './storage.js';
+import { TEST_ADS } from './ads-config.js';
 
-// Release: echte AdMob-Anzeigenblock-IDs eintragen und TEST_ADS auf false setzen.
-const TEST_ADS = true;
-const INTERSTITIAL_ID = {
+const INTERSTITIAL_ID = TEST_ADS ? {
   android: 'ca-app-pub-3940256099942544/1033173712',
   ios: 'ca-app-pub-3940256099942544/4411468910',
+} : {
+  android: 'ca-app-pub-3910049405256581/5359005908',
+  ios: 'ca-app-pub-3910049405256581/7793597554',
 };
 const PRODUCT_ID = 'remove_ads';
 const NO_ADS_KEY = 'grauweide_no_ads';

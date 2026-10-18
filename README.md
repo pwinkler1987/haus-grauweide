@@ -34,13 +34,14 @@ App-ID: `de.pwinkler.grauweide`, nur Querformat.
 Nur in den Apps: AdMob zeigt beim Raumwechsel höchstens alle 5 Minuten eine
 Vollbildwerbung (die erste frühestens nach 4 Minuten). Der Kauf `remove_ads`
 (einmalig, nicht verbrauchbar) schaltet sie ab; Menü → „Werbung entfernen“ und
-„Kauf wiederherstellen“. Eingebaut sind die Test-IDs von Google. Für den Release:
+„Kauf wiederherstellen“.
 
-- `static/js/engine/shop.js`: `INTERSTITIAL_ID` (Anzeigenblöcke) eintragen, `TEST_ADS = false`
-- Android: `admob_app_id` in `android/app/src/main/res/values/strings.xml`
-- iOS: `GADApplicationIdentifier` in `ios/App/App/Info.plist`, in Xcode die
-  Capability „In-App Purchase“ hinzufügen
-- Produkt `remove_ads` in der Play Console und in App Store Connect anlegen
+`npm run sync` baut mit Test-Werbung von Google (zum Entwickeln, eigene
+Anzeigen nie anklicken). **Vor jedem Store-Build `npm run sync:release`**, erst
+dann kommen die echten Anzeigenblöcke aus `static/js/engine/shop.js`.
+
+- Produkt `remove_ads` (0,99 €) in der Play Console und in App Store Connect anlegen
+- iOS: in Xcode die Capability „In-App Purchase“ hinzufügen
 
 ## Steuerung
 

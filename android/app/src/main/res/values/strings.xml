@@ -4,6 +4,5 @@
     <string name="title_activity_main">Haus Grauweide</string>
     <string name="package_name">de.pwinkler.grauweide</string>
     <string name="custom_url_scheme">de.pwinkler.grauweide</string>
-    <!-- Google-Test-App-ID; für den Release die echte AdMob-App-ID eintragen -->
-    <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="admob_app_id">ca-app-pub-3910049405256581~4425198185</string>
 </resources>
