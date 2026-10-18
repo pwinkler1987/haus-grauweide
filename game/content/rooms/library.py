@@ -37,8 +37,8 @@ DRAW = [
     {"if": "!flag:got_lexikon", "shapes": [("rect", 207, 12, 8, 10, "#d4a017"),
                                            ("rect", 208, 15, 6, 1, "#7a5a20")]},
     # Rollleiter (zwei mögliche Positionen)
-    {"if": "!flag:ladder_moved", "shapes": ladder(56)},
-    {"if": "flag:ladder_moved", "shapes": ladder(200)},
+    {"if": "!flag:ladder_moved", "sprite": "library_ladder_left", "shapes": ladder(56)},
+    {"if": "flag:ladder_moved", "sprite": "library_ladder_right", "shapes": ladder(200)},
     # Kamin
     ("rect", 240, 66, 60, 38, "#3a3a42"), ("rect", 250, 76, 40, 28, "#0e0e10"),
     ("rect", 236, 62, 68, 5, "#4a4a52"),

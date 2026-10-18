@@ -32,10 +32,10 @@ DRAW = [
     ("circle", 168, 78, 1.5, "#c8a040"),
     ("rect", 180, 64, 4, 5, "#888888"),  # Klingel
     ("rect", 138, 100, 44, 4, "#3a3a42"), ("rect", 132, 104, 56, 4, "#33333a"),
-    {"if": "flag:door_open", "shapes": [("rect", 146, 52, 28, 48, "#05060a"), ("rect", 146, 52, 6, 48, WOOD)]},
+    {"if": "flag:door_open", "sprite": "front_yard_door_open", "shapes": [("rect", 146, 52, 28, 48, "#05060a"), ("rect", 146, 52, 6, 48, WOOD)]},
     # Kohlenschacht-Klappe im Sockel
-    {"if": "!flag:chute_open", "shapes": [("rect", 84, 92, 18, 8, "#2b2b2b"), ("rect", 85, 93, 16, 1, "#444444")]},
-    {"if": "flag:chute_open", "shapes": [("rect", 84, 92, 18, 8, "#050505"), ("rect", 84, 86, 18, 6, "#2b2b2b")]},
+    {"if": "!flag:chute_open", "sprite": "front_yard_chute_closed", "shapes": [("rect", 84, 92, 18, 8, "#2b2b2b"), ("rect", 85, 93, 16, 1, "#444444")]},
+    {"if": "flag:chute_open", "sprite": "front_yard_chute_open", "shapes": [("rect", 84, 92, 18, 8, "#050505"), ("rect", 84, 86, 18, 6, "#2b2b2b")]},
     # Boden, Weg, Sonnenuhr
     ("rect", 0, 100, 320, 44, "#1b2414"),
     ("poly", [(140, 108), (180, 108), (200, 144), (120, 144)], "#3b2f22"),
@@ -47,7 +47,7 @@ DRAW = [
     ("poly", [(284, 62), (304, 46), (320, 58), (320, 62)], "#2a1c12"),
     ("rect", 296, 76, 12, 30, "#24170e"),
     # angelehnte Leiter am Fenster rechts neben der Tür
-    {"if": "flag:ladder_placed", "shapes": [
+    {"if": "flag:ladder_placed", "sprite": "front_yard_ladder", "shapes": [
         ("line", 204, 116, 206, 66, "#8a6238"), ("line", 222, 116, 220, 66, "#8a6238"),
         *[("line", 205, y, 221, y, "#8a6238") for y in range(72, 116, 8)],
     ]},

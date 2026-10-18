@@ -674,15 +674,51 @@ class Game {
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, W, H);
     if (!this.room) return;
-    drawShapes(ctx, this.room.draw, (cond) => this.script.check(cond));
+    const check = (cond) => this.script.check(cond);
+    if (this.room.img) {
+      // Pixel-Art-Hintergrund; darüber nur die Formen, die vom Spielstand abhängen
+      ctx.drawImage(this.room.img, 0, 0);
+      drawShapes(ctx, this.room.draw.filter((s) => !Array.isArray(s)), check, true);
+    } else {
+      drawShapes(ctx, this.room.draw, check);
+    }
     for (const a of this.actorsInRoom().sort((p, q) => p.y - q.y)) a.draw(ctx);
     if (this.showHotspots) drawHotspotOutlines(ctx, this.visibleHotspots());
   }
 }
 
+async function loadImage(src) {
+  const img = new Image();
+  img.src = src;
+  try {
+    await img.decode();
+    return img;
+  } catch {
+    console.warn('Bild fehlt:', src);
+    return null;
+  }
+}
+
+// Räume mit Pixel-Art-Bild; zustandsabhängige Blöcke können statt der Formen
+// ein Overlay in Raumgröße zeigen ("sprite": Name in img/sprites/, "" = nichts).
+function loadRoomImages(rooms) {
+  const jobs = [];
+  for (const room of Object.values(rooms)) {
+    if (!room.image) continue;
+    jobs.push(loadImage(room.image).then((img) => { room.img = img; }));
+    for (const block of room.draw) {
+      if (!Array.isArray(block) && block.sprite) {
+        jobs.push(loadImage(`img/sprites/${block.sprite}.png`).then((img) => { block.img = img; }));
+      }
+    }
+  }
+  return Promise.all(jobs);
+}
+
 async function boot() {
   const res = await fetch('data.json');
   const data = await res.json();
+  await loadRoomImages(data.rooms);
   const game = new Game(data);
   window.adventure = game; // zum Ausprobieren in der Browser-Konsole
   game.start();
