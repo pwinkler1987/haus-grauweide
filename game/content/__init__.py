@@ -17,6 +17,7 @@ def build_game_data():
     characters = _fresh(f"{__name__}.characters")
     items = _fresh(f"{__name__}.items")
     dialogs = _fresh(f"{__name__}.dialogs")
+    endings = _fresh(f"{__name__}.endings")
     rooms = {}
     for info in pkgutil.iter_modules(rooms_pkg.__path__):
         room = _fresh(f"{rooms_pkg.__name__}.{info.name}").ROOM
@@ -27,5 +28,6 @@ def build_game_data():
         "characters": characters.CHARACTERS,
         "items": items.ITEMS,
         "dialogs": dialogs.DIALOGS,
+        "endings": endings.ENDINGS,
         "rooms": rooms,
     }

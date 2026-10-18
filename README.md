@@ -29,6 +29,7 @@ Benötigt nur Python 3.10+ (keine Zusatzpakete) und einen modernen Browser.
 - `game/content/` – **Inhalte in Python**: Figuren, Gegenstände, ein Modul pro Raum.
   Änderungen werden beim Neuladen des Browsers übernommen.
 - `game/content/dialogs.py` – Dialogbäume (Knoten, Antworten, Bedingungen).
+- `game/content/endings.py` – die drei Enden mit Abspann.
 - `game/validate.py` – findet Tippfehler (unbekannte Räume, Gegenstände).
 - `game/server.py` – Webserver + Speicher-API.
 - `static/js/engine/` – die Engine im Browser (Zeichnen, Laufen, Verben, Skripte, Sound).
@@ -54,6 +55,7 @@ Neue Datei `game/content/rooms/mein_raum.py` mit einer Variable `ROOM`
 | `"dialog:anselm"` | Dialogbaum starten (siehe `game/content/dialogs.py`) |
 | `"walk:figur:x,y"` / `"face:figur:left"` | Figur in einer Zwischensequenz bewegen / drehen |
 | `"codelock:2313:flag"` | Zahlenschloss; bei richtigem Code wird das Flag gesetzt |
+| `"end:befreit"` | Ende-Bildschirm mit Abspann (siehe `game/content/endings.py`) |
 | `"sound:name"` / `"wait:ms"` | Klang (static, melody, click, owl, tick) / Pause |
 
 Listen von Aktionen laufen nacheinander. Bedingt: `{"if": …, "do": …, "else": …}` mit
@@ -63,4 +65,13 @@ Listen von Aktionen laufen nacheinander. Bedingt: `{"if": …, "do": …, "else"
 Jede Figur hat ein eigenes Inventar; mit „Gib X an <Figur>“ wandern Gegenstände weiter.
 
 Nicht spielbare Figuren stehen ebenfalls in `characters.py` (mit `"npc": True`);
-`"ghost": True` im Sprite macht sie halb durchsichtig.
+`"ghost": True` im Sprite macht sie halb durchsichtig. Was ein NPC mit einem
+geschenkten Gegenstand macht, steht in seinen Aktionen unter `"give:<gegenstand>"`.
+
+## Die Geschichte (Spoiler!)
+
+Baumhaus → Waldrand (Gruppe wählen) → Waldweg → Tor → Vorgarten → Halle
+→ Obergeschoss (Bibliothek, Labor, Butler Tick) → Turmtreppe → Uhrenkammer.
+
+Drei Enden: *Die nächste Sekunde* (gut), *Ohne Abschied* (neutral),
+*Zwischen zwei Sekunden* (schlecht). Gefundene Enden merkt sich der Browser.

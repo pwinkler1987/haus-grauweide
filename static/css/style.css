@@ -273,6 +273,40 @@ html, body {
 #codelock .buttons button { color: var(--verb); font-size: 26px; }
 #codelock button:hover { color: var(--verb-hover); }
 
+#ending {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: safe center;
+  gap: 6px;
+  padding: 24px max(16px, calc((100vw - 760px) / 2));
+  text-align: center;
+  overflow: auto;
+  background: radial-gradient(circle at 50% 30%, #1a2050, #000 75%);
+  animation: fade-in 2s ease-out;
+}
+#ending.kind-neutral { background: radial-gradient(circle at 50% 30%, #3a3020, #000 75%); }
+#ending.kind-schlecht { background: radial-gradient(circle at 50% 30%, #301420, #000 75%); }
+#ending .label { margin: 0; color: var(--muted); font-size: 20px; text-transform: uppercase; letter-spacing: 3px; }
+#ending h2 { margin: 0; font-weight: normal; color: #e8e4c0; font-size: clamp(28px, 5vw, 52px); }
+#ending .text { margin: 4px 0; white-space: pre-line; color: #ddd; font-size: clamp(16px, 2.2vw, 22px); }
+#ending .credits p { margin: 0; color: var(--sentence); font-size: clamp(16px, 2.2vw, 22px); }
+#ending .count { margin: 6px 0 0; color: var(--verb-active); font-size: 20px; }
+#ending .buttons { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
+#ending button {
+  background: none;
+  border: 0;
+  color: var(--verb);
+  font: inherit;
+  font-size: 24px;
+  cursor: pointer;
+}
+#ending button:hover { color: var(--verb-hover); }
+@keyframes fade-in { from { opacity: 0; } }
+
 #statusbar {
   display: flex;
   justify-content: space-between;

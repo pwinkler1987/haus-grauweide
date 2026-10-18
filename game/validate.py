@@ -39,6 +39,8 @@ def validate(data):
             cmd, _, arg = s.partition(":")
             if cmd in ("goto", "party_goto") and arg.split(":")[0] not in rooms:
                 problems.append(f"{where}: Raum '{arg}' existiert nicht")
+            if cmd == "end" and arg not in data.get("endings", {}):
+                problems.append(f"{where}: Ende '{arg}' existiert nicht")
             if cmd == "dialog" and arg not in dialogs:
                 problems.append(f"{where}: Dialog '{arg}' existiert nicht")
             if cmd == "codelock" and (len(arg.split(":")) != 2 or not arg.split(":")[0].isdigit()):

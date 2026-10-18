@@ -124,4 +124,13 @@ ITEMS = {
                  ("circle", 19, 8, 2, "#15152a"), ("rect", 3, 5, 2, 6, "#c8a040")],
         "actions": {"look": "Ein großer Messingschlüssel. Wie für ein Uhrwerk – nur riesig."},
     },
+    "taschenuhr": {
+        "name": "Taschenuhr",
+        "icon": [("line", 12, 1, 16, 4, "#c8a040"), ("circle", 12, 9, 6, "#c8a040"),
+                 ("circle", 12, 9, 4.5, "#f4ecd0"), ("line", 12, 9, 12, 6, "#222222"),
+                 ("line", 12, 9, 14, 10, "#222222")],
+        "actions": {"look": ["say:Eine goldene Taschenuhr. Auf dem Deckel eine Gravur:",
+                             "say:\"Für Konrad – damit du nie wieder zu spät kommst. Deine O.\""],
+                    "open": "Sie tickt. Als einziges Ding im ganzen Turm."},
+    },
 }

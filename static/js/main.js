@@ -42,6 +42,7 @@ class Game {
       panel: document.getElementById('panel'),
       dialog: document.getElementById('dialog'),
       codelock: document.getElementById('codelock'),
+      ending: document.getElementById('ending'),
     };
 
     const lead = data.start.character;
@@ -324,6 +325,52 @@ class Game {
     });
   }
 
+  // ---- Enden ------------------------------------------------------------
+  // Zeigt den Ende-Bildschirm. Das Promise bleibt offen: Das Spiel ist vorbei.
+  showEnding(id) {
+    const end = this.data.endings[id];
+    const names = this.state.party.slice(1).map((p) => this.data.characters[p].name);
+    const party = names.length ? names.join(' und ') : 'den anderen';
+    const fill = (t) => t.replaceAll('{party}', party);
+
+    const found = new Set();
+    try {
+      for (const e of JSON.parse(localStorage.getItem('grauweide_endings') ?? '[]')) found.add(e);
+      found.add(id);
+      localStorage.setItem('grauweide_endings', JSON.stringify([...found]));
+    } catch { found.add(id); }
+
+    const el = this.el.ending;
+    el.className = `kind-${end.kind}`;
+    el.innerHTML = '';
+    const add = (tag, text, cls) => {
+      const n = document.createElement(tag);
+      n.textContent = text;
+      if (cls) n.className = cls;
+      el.appendChild(n);
+      return n;
+    };
+    add('p', `Ende (${end.kind})`, 'label');
+    add('h2', end.title);
+    add('p', fill(end.text), 'text');
+    const credits = add('div', '', 'credits');
+    for (const line of end.credits ?? []) {
+      const c = document.createElement('p');
+      c.textContent = fill(line);
+      credits.appendChild(c);
+    }
+    add('p', `Gefundene Enden: ${found.size} von ${Object.keys(this.data.endings).length}`, 'count');
+    const buttons = add('div', '', 'buttons');
+    for (const [label, href] of [['Nochmal von vorn', '/'], ['Letzten Spielstand laden', '/?load=1']]) {
+      const b = document.createElement('button');
+      b.textContent = label;
+      b.addEventListener('click', () => { window.location.href = href; });
+      buttons.appendChild(b);
+    }
+    el.hidden = false;
+    return new Promise(() => {});
+  }
+
   // ---- Inventar ---------------------------------------------------------
   addItem(id, who = this.state.activeChar) {
     const inv = (this.state.inventories[who] ??= []);
@@ -431,7 +478,11 @@ class Game {
   }
 
   async giveItem(itemId, toId) {
-    if (!this.state.party.includes(toId)) return this.say('Das behalte ich lieber.');
+    if (!this.state.party.includes(toId)) {
+      // NPCs reagieren über "give:<gegenstand>" in ihren Aktionen
+      const action = this.data.characters[toId].actions?.[`give:${itemId}`];
+      return action ? this.script.run(action) : this.say('Das behalte ich lieber.');
+    }
     this.removeItem(itemId);
     this.addItem(itemId, toId);
     await this.say(`Hier, nimm ${this.data.items[itemId].name}.`);
@@ -599,6 +650,13 @@ async function boot() {
   game.start();
 
   const title = document.getElementById('title');
+  if (new URLSearchParams(window.location.search).has('load')) {
+    title.hidden = true;
+    history.replaceState(null, '', '/');
+    await game.load();
+    if (!game.room) game.enterRoom(data.start.room);
+    return;
+  }
   title.addEventListener('click', () => {
     title.hidden = true;
     game.sound.unlock();

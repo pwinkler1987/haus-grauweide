@@ -4,12 +4,7 @@ PAPER, STRIPE, PANEL = "#3a2a3a", "#33243a", "#2a1a12"
 
 TOWER_UP = {
     "if": "flag:tower_open",
-    "do": [
-        "say:Die Turmtreppe. Sie windet sich nach oben in die Dunkelheit.",
-        "sound:tick",
-        "say:Von oben kommt ein Ticken. Ganz langsam. Viel zu langsam.",
-        "narrate:Ende von Etappe 5.\n\nIn Etappe 6: der Turm, die große Uhr und Professorin Grauweide – und die Frage, ob man eine Sekunde für immer anhalten darf.\n\nMehrere Enden sind möglich.",
-    ],
+    "do": ["sound:tick", "party_goto:tower_stairs"],
     "else": {"if": "flag:tick_awake",
              "do": "sayas:tick:Ohne Losung kein Durchgang. Bedaure.",
              "else": "Abgeschlossen. Und davor steht dieser Blechmann."},

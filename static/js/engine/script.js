@@ -15,7 +15,7 @@
 
 const COMMANDS = new Set([
   'say', 'sayas', 'narrate', 'set', 'unset', 'take', 'drop', 'goto', 'party_goto',
-  'place', 'remove', 'choose', 'sound', 'wait', 'dialog', 'walk', 'face', 'codelock',
+  'place', 'remove', 'choose', 'sound', 'wait', 'dialog', 'walk', 'face', 'codelock', 'end',
 ]);
 
 export class ScriptRunner {
@@ -84,6 +84,7 @@ export class ScriptRunner {
       case 'remove': return g.removeActor(arg);
       case 'choose': return g.chooseParty(Number(arg));
       case 'dialog': return g.runDialog(arg);
+      case 'end': return g.showEnding(arg);
       case 'walk': {
         const [who, pos] = arg.split(':');
         const [x, y] = pos.split(',').map(Number);
