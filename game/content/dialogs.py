@@ -72,4 +72,43 @@ DIALOGS = {
             },
         },
     },
+    "tick": {
+        "start": "wach",
+        "nodes": {
+            "wach": {
+                "intro": {"if": "!flag:tick_met",
+                          "do": ["set:tick_met",
+                                 "sayas:tick:Tick. Tack. Systeme... bereit.",
+                                 "sayas:tick:Guten Abend. Ich bin Tick, Butler des Hauses Grauweide.",
+                                 "sayas:tick:Die Frau Professor wünscht nicht gestört zu werden."]},
+                "options": [
+                    {"text": "Wo ist die Professorin?", "once": True,
+                     "do": ["sayas:tick:Im Turm. Seit 23 Uhr, 12 Minuten und 59 Sekunden.",
+                            "sayas:tick:Sie sagte, es dauert nur eine Sekunde. Ich warte seither."]},
+                    {"text": "Wer hat dich gebaut?", "once": True,
+                     "do": ["sayas:tick:Die Frau Professor. 1951.",
+                            "sayas:tick:Ich koche Tee, ich staube ab, ich zähle Sekunden. Sehr viele Sekunden."]},
+                    {"text": "Wer ist Konrad?", "if": "flag:library_intro", "once": True,
+                     "do": ["sayas:tick:Konrad Grauweide. Ihr Bruder. Er hat mir das Schachspielen beigebracht.",
+                            "sayas:tick:Er ist im Frühling gegangen. Seitdem baut sie an der Uhr."]},
+                    {"text": "Lass uns in den Turm.", "goto": "losung", "if": "!flag:tower_open"},
+                    {"text": "Ist der Turm offen?", "if": "flag:tower_open",
+                     "do": "sayas:tick:Bitte sehr. Aber gehen Sie leise. Die Zeit ist dort oben... dünn."},
+                    {"text": "Bis später, Tick.", "end": True, "do": "sayas:tick:Tick. Tack."},
+                ],
+            },
+            "losung": {
+                "intro": "sayas:tick:Nur mit der Losung der Frau Professor.",
+                "options": [
+                    {"text": "Abrakadabra?", "goto": "wach", "do": "sayas:tick:Falsch."},
+                    {"text": "Lass uns einfach durch!", "goto": "wach", "do": "sayas:tick:Falsch. Und unhöflich."},
+                    {"text": "Rosen im November.", "if": "flag:diary_read", "end": True,
+                     "do": ["sayas:tick:...Korrekt.", "walk:tick:236,118", "sound:click", "set:tower_open",
+                            "sayas:tick:Die Tür ist offen. Gehen Sie leise. Die Zeit ist dort oben... dünn."]},
+                    {"text": "Äh... die weiß ich gerade nicht.", "goto": "wach",
+                     "do": "sayas:tick:Dann kann ich leider nicht helfen. Tick."},
+                ],
+            },
+        },
+    },
 }

@@ -64,7 +64,7 @@ ROOM = {
             "remove:ottilie",
             "say:Da war jemand! Oben auf der Galerie!",
             "say:Und sie war... durchsichtig.",
-            "narrate:Ende von Etappe 4.\n\nAls Nächstes (Etappe 5): die oberen Stockwerke, die Bibliothek, das Labor – und der Weg hinauf in den Turm.",
+            "say:Ich glaube, sie wollte nach oben.",
         ],
     },
     "hotspots": [
@@ -97,7 +97,7 @@ ROOM = {
         {"id": "treppe", "name": "Treppe", "rect": (88, 62, 144, 42), "walk_to": (160, 112),
          "default": "walk",
          "actions": {"look": "Eine breite Freitreppe hinauf zur Galerie.",
-                     "walk": "Die Stufen knarren so laut... (oben geht es in Etappe 5 weiter)"}},
+                     "walk": "goto:upstairs:30,126"}},
         {"id": "kellertuer", "name": "Kellertür", "rect": (284, 54, 26, 50), "walk_to": (296, 118),
          "default": "walk",
          "actions": {"look": "Eine schmale Tür. Dahinter geht es in den Keller.",

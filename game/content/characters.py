@@ -94,4 +94,21 @@ CHARACTERS = {
                    "jacket": "#e8e8e8", "pants": "#555566", "shoes": "#333333"},
         "actions": {"look": "Sie flimmert wie ein schlecht eingestellter Fernseher."},
     },
+    "tick": {
+        "name": "Tick", "npc": True,
+        "text_color": "#ffcc66",
+        "sprite": {"skin": "#c8a040", "hair": "#a08030", "cap": None, "goggles": "#ff6040",
+                   "jacket": "#1a1a1a", "pants": "#1a1a1a", "shoes": "#c8a040"},
+        "actions": {
+            "look": {"if": "flag:tick_awake",
+                     "do": "Tick, der mechanische Butler. Er tickt leise vor sich hin.",
+                     "else": "Ein Butler aus Messing, im Frack. Er steht völlig still. Im Rücken ist ein Schlitz."},
+            "talk": {"if": "flag:tick_awake", "do": "dialog:tick",
+                     "else": "Hallo? ...Nichts. Der ist abgelaufen wie ein Wecker."},
+            "push": "Puh! Der wiegt bestimmt zwei Zentner.",
+            "use:schluessel": {"if": "flag:tick_awake", "do": "Der läuft schon.",
+                               "else": ["say:Mal sehen, ob der passt...", "drop:schluessel",
+                                        "sound:tick", "set:tick_awake", "dialog:tick"]},
+        },
+    },
 }
