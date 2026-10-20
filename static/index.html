@@ -11,19 +11,19 @@
     <div id="scene-wrap">
       <canvas id="scene" width="320" height="144"></canvas>
       <div id="speech" hidden></div>
-      <div id="narration" hidden><p></p><span class="hint">▼ Klick</span></div>
+      <div id="narration" hidden><p></p><span class="hint" data-t="clickHint">▼ Klick</span></div>
       <div id="toast" hidden></div>
       <div id="chooser" hidden></div>
       <div id="codelock" hidden></div>
       <div id="ending" hidden></div>
       <div id="menu" hidden></div>
       <div id="title">
-        <h1>Das Haus Grauweide</h1>
-        <p>Ein Spukhaus-Mysterium</p>
-        <p class="blink">Klicken zum Starten</p>
-        <button id="continue" hidden>Spielstand laden</button>
+        <h1 data-t="title">Das Haus Grauweide</h1>
+        <p data-t="subtitle">Ein Spukhaus-Mysterium</p>
+        <p class="blink" data-t="start">Klicken zum Starten</p>
+        <button id="continue" data-t="continue" hidden>Spielstand laden</button>
       </div>
-      <button id="menu-btn" aria-label="Menü">☰</button>
+      <button id="menu-btn" aria-label="Menü" data-t-label="menu">☰</button>
     </div>
     <div id="sentence">&nbsp;</div>
     <div id="panel">
@@ -34,10 +34,10 @@
     <div id="party"></div>
     <div id="statusbar">
       <span id="room-name"></span>
-      <span class="keys">1–9 Verben · Tab Figur wechseln · H Hotspots · Rechtsklick: Standardaktion · F5 Speichern · F9 Laden</span>
+      <span class="keys" data-t="keys">1–9 Verben · Tab Figur wechseln · H Hotspots · Rechtsklick: Standardaktion · F5 Speichern · F9 Laden</span>
     </div>
   </main>
-  <div id="rotate">Bitte das Gerät quer halten.</div>
+  <div id="rotate" data-t="rotate">Bitte das Gerät quer halten.</div>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>

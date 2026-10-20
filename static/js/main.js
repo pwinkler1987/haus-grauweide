@@ -2,7 +2,8 @@
 import { drawShapes, drawHotspotOutlines } from './engine/renderer.js';
 import { Actor, drawPortrait } from './engine/actor.js';
 import { clampToPolygon, hotspotAt } from './engine/room.js';
-import { VerbBar, VERB_LABEL, PREPOSITION } from './engine/verbs.js';
+import { VerbBar, verbLabel, preposition } from './engine/verbs.js';
+import { t, initLang, switchLang, dataFile } from './engine/i18n.js';
 import { InventoryView } from './engine/inventory.js';
 import { ScriptRunner } from './engine/script.js';
 import { Sound } from './engine/audio.js';
@@ -16,17 +17,6 @@ const SAVE_KEY = 'grauweide_save_slot1';
 const ENDINGS_KEY = 'grauweide_endings';
 
 // Antworten, wenn ein Objekt für ein Verb nichts Eigenes festlegt.
-const DEFAULT_REPLY = {
-  look: 'Sieht ganz normal aus.',
-  take: 'Das kann ich nicht mitnehmen.',
-  use: 'Das funktioniert so nicht.',
-  open: 'Das lässt sich nicht öffnen.',
-  close: 'Das lässt sich nicht schließen.',
-  talk: 'Ich glaube nicht, dass das antwortet.',
-  give: 'Das will ich nicht hergeben.',
-  push: 'Da bewegt sich nichts.',
-  combine: 'Das passt nicht zusammen.',
-};
 
 class Game {
   constructor(data) {
@@ -203,12 +193,12 @@ class Game {
     const chosen = new Set();
     el.innerHTML = '';
     const title = document.createElement('h2');
-    title.textContent = `Wer kommt mit? Wähle ${count}.`;
+    title.textContent = t('whoComes', { n: count });
     const grid = document.createElement('div');
     grid.className = 'cards';
     const go = document.createElement('button');
     go.className = 'go';
-    go.textContent = "Los geht's!";
+    go.textContent = t('go');
     go.disabled = true;
 
     for (const id of candidates) {
@@ -242,8 +232,7 @@ class Game {
         this.renderParty();
         const names = left.map((id) => this.data.characters[id].name);
         await this.narrate(
-          `${names.slice(0, -1).join(', ')} und ${names.at(-1)} radeln nach Hause.\n\n` +
-          'Wenn jemand fragt: Alle übernachten bei allen.',
+          t('rideHome', { names: names.slice(0, -1).join(', '), last: names.at(-1) }),
         );
         resolve();
       }, { once: true });
@@ -299,7 +288,7 @@ class Game {
   codeLock(code) {
     const el = this.el.codelock;
     const digits = Array(code.length).fill(0);
-    el.innerHTML = '<h2>Das Messingrad</h2><div class="wheels"></div><div class="buttons"></div>';
+    el.innerHTML = `<h2>${t('codeTitle')}</h2><div class="wheels"></div><div class="buttons"></div>`;
     const wheels = el.querySelector('.wheels');
     digits.forEach((_, i) => {
       const w = document.createElement('div');
@@ -324,7 +313,7 @@ class Game {
     return new Promise((resolve) => {
       const close = (ok) => { el.hidden = true; resolve(ok); };
       const buttons = el.querySelector('.buttons');
-      for (const [label, fn] of [['Drehen', () => close(digits.join('') === code)], ['Abbrechen', () => close(false)]]) {
+      for (const [label, fn] of [[t('turn'), () => close(digits.join('') === code)], [t('cancel'), () => close(false)]]) {
         const b = document.createElement('button');
         b.textContent = label;
         b.addEventListener('click', fn);
@@ -338,7 +327,7 @@ class Game {
   async showEnding(id) {
     const end = this.data.endings[id];
     const names = this.state.party.slice(1).map((p) => this.data.characters[p].name);
-    const party = names.length ? names.join(' und ') : 'den anderen';
+    const party = names.length ? names.join(t('and')) : t('others');
     const fill = (t) => t.replaceAll('{party}', party);
 
     const found = new Set(await getJSON(ENDINGS_KEY, []));
@@ -355,7 +344,7 @@ class Game {
       el.appendChild(n);
       return n;
     };
-    add('p', `Ende (${end.kind})`, 'label');
+    add('p', t('ending', { kind: t(`kinds.${end.kind}`) }), 'label');
     add('h2', end.title);
     add('p', fill(end.text), 'text');
     const credits = add('div', '', 'credits');
@@ -364,9 +353,9 @@ class Game {
       c.textContent = fill(line);
       credits.appendChild(c);
     }
-    add('p', `Gefundene Enden: ${found.size} von ${Object.keys(this.data.endings).length}`, 'count');
+    add('p', t('found', { n: found.size, total: Object.keys(this.data.endings).length }), 'count');
     const buttons = add('div', '', 'buttons');
-    for (const [label, query] of [['Nochmal von vorn', ''], ['Letzten Spielstand laden', '?load=1']]) {
+    for (const [label, query] of [[t('again'), ''], [t('loadLast'), '?load=1']]) {
       const b = document.createElement('button');
       b.textContent = label;
       b.addEventListener('click', () => { window.location.href = window.location.pathname + query; });
@@ -399,8 +388,8 @@ class Game {
   updateSentence() {
     if (this.busy) { this.el.sentence.innerHTML = '&nbsp;'; return; }
     const verb = this.verbs.verb;
-    const parts = [VERB_LABEL[verb]];
-    if (this.pending) parts.push(this.pending.name, PREPOSITION[verb]);
+    const parts = [verbLabel(verb)];
+    if (this.pending) parts.push(this.pending.name, preposition(verb));
     if (this.hover && this.hover !== this.pending) parts.push(this.hover.name);
     this.el.sentence.textContent = parts.join(' ');
   }
@@ -445,15 +434,15 @@ class Game {
   findAction(verb, a, b) {
     const acts = (o) => o.def.actions ?? {};
     if (b) {
-      return acts(b)[`${verb}:${a.id}`] ?? acts(a)[`${verb}:${b.id}`] ?? DEFAULT_REPLY.combine;
+      return acts(b)[`${verb}:${a.id}`] ?? acts(a)[`${verb}:${b.id}`] ?? t('reply.combine');
     }
     const own = acts(a)[verb];
     if (own !== undefined) return own;
     if (verb === 'walk') return null;
-    if (verb === 'take' && a.kind === 'item') return 'Das habe ich doch schon.';
-    if (verb === 'take' && a.kind === 'actor') return 'Die Gruppe trage ich nicht auch noch.';
-    if (verb === 'give' && a.kind !== 'item') return 'Das muss ich erst einmal haben.';
-    return DEFAULT_REPLY[verb];
+    if (verb === 'take' && a.kind === 'item') return t('reply.haveIt');
+    if (verb === 'take' && a.kind === 'actor') return t('reply.carryParty');
+    if (verb === 'give' && a.kind !== 'item') return t('reply.needFirst');
+    return t(`reply.${verb}`);
   }
 
   // Wohin läuft die Figur, um mit einem Objekt zu interagieren?
@@ -486,12 +475,12 @@ class Game {
     if (!this.state.party.includes(toId)) {
       // NPCs reagieren über "give:<gegenstand>" in ihren Aktionen
       const action = this.data.characters[toId].actions?.[`give:${itemId}`];
-      return action ? this.script.run(action) : this.say('Das behalte ich lieber.');
+      return action ? this.script.run(action) : this.say(t('reply.keep'));
     }
     this.removeItem(itemId);
     this.addItem(itemId, toId);
-    await this.say(`Hier, nimm ${this.data.items[itemId].name}.`);
-    await this.say('Danke!', toId);
+    await this.say(t('reply.hereTake', { item: this.data.items[itemId].name }));
+    await this.say(t('reply.thanks'), toId);
   }
 
   walkTo(x, y) {
@@ -542,24 +531,24 @@ class Game {
 
   // ---- Speichern / Laden ------------------------------------------------
   async save() {
-    if (this.busy) return this.toast('Gerade nicht möglich.');
+    if (this.busy) return this.toast(t('busy'));
     const actors = Object.fromEntries(Object.values(this.actors).map((a) =>
       [a.id, { room: a.room, x: Math.round(a.x), y: Math.round(a.y), dir: a.dir }]));
     try {
       await setJSON(SAVE_KEY, { ...this.state, actors });
-      this.toast('Gespeichert.');
+      this.toast(t('saved'));
     } catch (err) {
       console.error(err);
-      this.toast('Speichern fehlgeschlagen.');
+      this.toast(t('saveFailed'));
     }
   }
 
   async load() {
-    if (this.busy) return this.toast('Gerade nicht möglich.');
+    if (this.busy) return this.toast(t('busy'));
     const saved = await getJSON(SAVE_KEY);
-    if (!saved) return this.toast('Kein Spielstand gefunden.');
+    if (!saved) return this.toast(t('noSave'));
     const { actors, ...state } = saved;
-    if (!actors) return this.toast('Spielstand ist zu alt.');
+    if (!actors) return this.toast(t('saveOld'));
     this.state = state;
     this.actors = {};
     for (const [id, s] of Object.entries(actors)) {
@@ -569,7 +558,7 @@ class Game {
     this.resetSelection();
     this.showRoom(this.actor.room);
     this.renderParty();
-    this.toast('Geladen.');
+    this.toast(t('loaded'));
   }
 
   // ---- Eingabe ----------------------------------------------------------
@@ -635,19 +624,20 @@ class Game {
   renderMenu() {
     const shop = this.shop;
     const entries = [
-      ['Weiterspielen', () => {}],
-      ['Speichern', () => this.save()],
-      ['Laden', () => this.load()],
-      ['Hotspots an/aus', () => { this.showHotspots = !this.showHotspots; }],
-      ['Neues Spiel', () => { window.location.href = window.location.pathname; }],
+      [t('resume'), () => {}],
+      [t('save'), () => this.save()],
+      [t('load'), () => this.load()],
+      [t('hotspots'), () => { this.showHotspots = !this.showHotspots; }],
+      [t('newGame'), () => { window.location.href = window.location.pathname; }],
+      [t('language'), () => switchLang()],
     ];
     if (shop.canBuy) {
       entries.push([`${shop.product.title} – ${shop.product.priceString}`, () => this.buyNoAds()]);
-      entries.push(['Kauf wiederherstellen', () => this.restoreNoAds()]);
+      entries.push([t('restore'), () => this.restoreNoAds()]);
     }
-    if (shop.privacyForm && !shop.noAds) entries.push(['Datenschutz-Einstellungen', () => shop.showPrivacyOptions()]);
+    if (shop.privacyForm && !shop.noAds) entries.push([t('privacy'), () => shop.showPrivacyOptions()]);
     const el = this.el.menu;
-    el.innerHTML = '<h2>Menü</h2>';
+    el.innerHTML = `<h2>${t('menu')}</h2>`;
     for (const [label, fn] of entries) {
       const b = document.createElement('button');
       b.textContent = label;
@@ -659,19 +649,19 @@ class Game {
   async buyNoAds() {
     try {
       await this.shop.buy();
-      this.toast('Danke! Die Werbung ist weg.');
+      this.toast(t('bought'));
     } catch (err) {
       console.warn('Kauf:', err);
-      this.toast('Kauf abgebrochen.');
+      this.toast(t('buyCancel'));
     }
   }
 
   async restoreNoAds() {
     try {
-      this.toast(await this.shop.restore() ? 'Kauf wiederhergestellt.' : 'Kein Kauf gefunden.');
+      this.toast(await this.shop.restore() ? t('restored') : t('noPurchase'));
     } catch (err) {
       console.warn('Wiederherstellen:', err);
-      this.toast('Wiederherstellen fehlgeschlagen.');
+      this.toast(t('restoreFailed'));
     }
   }
 
@@ -749,7 +739,8 @@ function loadRoomImages(rooms) {
 }
 
 async function boot() {
-  const res = await fetch('data.json');
+  await initLang();
+  const res = await fetch(dataFile());
   const data = await res.json();
   await loadRoomImages(data.rooms);
   const game = new Game(data);

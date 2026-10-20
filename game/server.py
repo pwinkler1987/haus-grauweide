@@ -3,16 +3,19 @@
 Routen:
     GET /           -> static/index.html (und alle anderen statischen Dateien)
     GET /data.json  -> alle Spielinhalte als JSON, bei jedem Aufruf frisch gebaut
+    GET /data.en.json -> dieselben Inhalte übersetzt (game/content/lang/en.json)
 
 Spielstände liegen im Browser bzw. in der App auf dem Gerät, nicht hier.
 Für die Apps schreibt tools/build_web.py dieselben Daten als Datei nach www/.
 """
 import json
+import re
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
 from .content import build_game_data
+from .content.i18n import LANGUAGES, translate
 from .validate import validate
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -29,14 +32,19 @@ class Handler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def log_message(self, fmt, *args):
-        if "data.json" in self.path:
+        if "data." in self.path:
             super().log_message(fmt, *args)
 
     def do_GET(self):
-        if urlparse(self.path).path == "/data.json":
+        m = re.fullmatch(r"/data(?:\.(\w+))?\.json", urlparse(self.path).path)
+        if m and (m[1] is None or m[1] in LANGUAGES):
             data = build_game_data()
             for p in validate(data):
                 print(f"[Inhalt] WARNUNG: {p}")
+            if m[1]:
+                data, missing = translate(data, m[1])
+                for text in missing:
+                    print(f"[Inhalt] WARNUNG: Übersetzung ({m[1]}) fehlt: {text[:70]!r}")
             body = json.dumps(data, ensure_ascii=False).encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
