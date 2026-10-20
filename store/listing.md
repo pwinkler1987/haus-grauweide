@@ -10,6 +10,8 @@ Kategorie: Spiele → Adventure (zweite: Spiele → Rätsel) · Preis: kostenlos
 
 **Untertitel (max. 30):** Ein Spukhaus-Mysterium
 
+**Google Play Kurzbeschreibung (max. 80):** Retro-Point-and-Click: Sechs Freunde lüften das Geheimnis eines alten Hauses.
+
 **Werbetext (max. 170):**
 Lindenbrück, Herbst 1987: Sechs Freunde, ein verlassenes Haus und eine Uhr, die seit Jahren stillsteht. Ein Retro-Adventure wie früher.
 
@@ -36,6 +38,10 @@ Adventure,Point and Click,Retro,Pixel,Rätsel,Spukhaus,Mystery,Krimi,80er,Klassi
 
 **Subtitle (max. 30):** A Haunted House Mystery
 
+**Google Play short description (max. 80):** Retro point-and-click: six friends uncover the secret of an abandoned house.
+
+**Google Play title:** Grauweide House
+
 **Promotional text (max. 170):**
 Lindenbrück, autumn 1987: six friends, an abandoned house and a clock that has stood still for years. A retro adventure like they used to make.
 
@@ -56,7 +62,14 @@ The game is free and supported by ads. A one-time purchase ("Remove Ads") lets y
 **Keywords (max. 100):**
 adventure,point and click,retro,pixel art,puzzle,haunted house,mystery,80s,classic,friends,detective
 
-## Screenshots (iPhone 6,9″, 2868×1320)
+## Screenshots
+
+iPhone 6,9″ (2868×1320):
 
 - Deutsch: `store/screenshots/iphone-6.9-0-title.png` … `iphone-6.9-5-treehouse.png`
 - Englisch: `store/screenshots/iphone-6.9-en-0-title.png` … `iphone-6.9-en-5-treehouse.png`
+
+Google Play (2160×1080):
+
+- Deutsch: `store/screenshots/play-phone-0-title.png` … `play-phone-5-treehouse.png`
+- Englisch: `store/screenshots/play-phone-en-0-title.png` … `play-phone-en-5-treehouse.png`
