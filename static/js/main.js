@@ -14,6 +14,7 @@ import { Shop } from './engine/shop.js';
 const W = 320;
 const H = 144;
 const SAVE_KEY = 'grauweide_save_slot1';
+const AUTO_KEY = 'grauweide_autosave';
 const ENDINGS_KEY = 'grauweide_endings';
 
 // Antworten, wenn ein Objekt für ein Verb nichts Eigenes festlegt.
@@ -70,7 +71,11 @@ class Game {
 
   async withBusy(fn) {
     this.busyCount++;
-    try { await fn(); } finally { this.busyCount--; this.updateSentence(); }
+    try { await fn(); } finally {
+      this.busyCount--;
+      this.updateSentence();
+      this.autosave();
+    }
   }
 
   // ---- Objekte ----------------------------------------------------------
@@ -355,7 +360,7 @@ class Game {
     }
     add('p', t('found', { n: found.size, total: Object.keys(this.data.endings).length }), 'count');
     const buttons = add('div', '', 'buttons');
-    for (const [label, query] of [[t('again'), ''], [t('loadLast'), '?load=1']]) {
+    for (const [label, query] of [[t('again'), ''], [t('loadLast'), '?load=latest']]) {
       const b = document.createElement('button');
       b.textContent = label;
       b.addEventListener('click', () => { window.location.href = window.location.pathname + query; });
@@ -530,24 +535,36 @@ class Game {
   }
 
   // ---- Speichern / Laden ------------------------------------------------
-  async save() {
-    if (this.busy) return this.toast(t('busy'));
+  snapshot() {
     const actors = Object.fromEntries(Object.values(this.actors).map((a) =>
       [a.id, { room: a.room, x: Math.round(a.x), y: Math.round(a.y), dir: a.dir }]));
+    return { ...this.state, actors, savedAt: Date.now() };
+  }
+  async save() {
+    if (this.busy) return this.toast(t('busy'));
     try {
-      await setJSON(SAVE_KEY, { ...this.state, actors });
+      await setJSON(SAVE_KEY, this.snapshot());
       this.toast(t('saved'));
     } catch (err) {
       console.error(err);
       this.toast(t('saveFailed'));
     }
   }
-
-  async load() {
-    if (this.busy) return this.toast(t('busy'));
-    const saved = await getJSON(SAVE_KEY);
+  // Automatisch beim Verlassen eines Raums, nach jeder Aktion und wenn die App
+  // in den Hintergrund geht – eigener Platz, der manuelle Spielstand bleibt.
+  autosave() {
+    if (!this.room || this.busy) return;
+    setJSON(AUTO_KEY, this.snapshot()).catch((err) => console.warn(err));
+  }
+  // latest: den neueren von manuellem und automatischem Spielstand nehmen.
+  async load(latest = false) {
+    // Mitten in einer Zwischensequenz neu starten und dann laden.
+    if (this.busy) { window.location.href = `${window.location.pathname}?load${latest ? '=latest' : ''}`; return; }
+    const manual = await getJSON(SAVE_KEY);
+    const auto = await getJSON(AUTO_KEY);
+    const saved = latest && (auto?.savedAt ?? 0) > (manual?.savedAt ?? 0) ? auto : (manual ?? auto);
     if (!saved) return this.toast(t('noSave'));
-    const { actors, ...state } = saved;
+    const { actors, savedAt, ...state } = saved;
     if (!actors) return this.toast(t('saveOld'));
     this.state = state;
     this.actors = {};
@@ -585,6 +602,8 @@ class Game {
     });
     this.el.narration.addEventListener('click', () => this.skip?.());
     this.bindMenu();
+    document.addEventListener('visibilitychange', () => { if (document.hidden) this.autosave(); });
+    window.Capacitor?.Plugins?.App?.addListener?.('pause', () => this.autosave());
 
     window.addEventListener('keydown', (e) => {
       if (!this.el.chooser.hidden || !this.el.codelock.hidden || !this.el.menu.hidden) return;
@@ -751,19 +770,20 @@ async function boot() {
   const title = document.getElementById('title');
   if (new URLSearchParams(window.location.search).has('load')) {
     title.hidden = true;
+    const latest = new URLSearchParams(window.location.search).get('load') === 'latest';
     history.replaceState(null, '', window.location.pathname);
-    await game.load();
+    await game.load(latest);
     if (!game.room) game.enterRoom(data.start.room);
     return;
   }
   const begin = async (load) => {
     title.hidden = true;
     game.sound.unlock();
-    if (load) await game.load();
+    if (load) await game.load(true);
     if (!game.room) game.enterRoom(data.start.room);
   };
   const continueBtn = document.getElementById('continue');
-  if (await getJSON(SAVE_KEY)) {
+  if ((await getJSON(SAVE_KEY)) || (await getJSON(AUTO_KEY))) {
     continueBtn.hidden = false;
     continueBtn.addEventListener('click', (e) => { e.stopPropagation(); begin(true); }, { once: true });
   }
