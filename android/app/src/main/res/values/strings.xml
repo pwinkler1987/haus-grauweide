@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Haus Grauweide</string>
+    <string name="title_activity_main">Haus Grauweide</string>
+    <string name="package_name">de.pwinkler.grauweide</string>
+    <string name="custom_url_scheme">de.pwinkler.grauweide</string>
+    <string name="admob_app_id">ca-app-pub-3910049405256581~4425198185</string>
+</resources>

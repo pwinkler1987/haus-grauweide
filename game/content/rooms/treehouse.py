@@ -79,11 +79,11 @@ DRAW = [
     # Kiste
     ("rect", 220, 96, 44, 24, "#7b5530"),
     ("rect", 220, 106, 44, 2, "#5a3d20"),
-    {"if": "flag:box_open", "shapes": [
+    {"if": "flag:box_open", "sprite": "treehouse_box_open", "shapes": [
         ("rect", 220, 82, 44, 6, "#5a3d20"),
         ("rect", 222, 96, 40, 4, "#2a1a0e"),
     ]},
-    {"if": "!flag:box_open", "shapes": [("rect", 218, 92, 48, 6, "#8a6238")]},
+    {"if": "!flag:box_open", "sprite": "", "shapes": [("rect", 218, 92, 48, 6, "#8a6238")]},
     {"if": ["flag:box_open", "!flag:got_taschenlampe"], "shapes": [
         ("rect", 232, 92, 14, 4, "#bdbdbd"), ("rect", 246, 91, 3, 6, "#8a8a8a"),
     ]},

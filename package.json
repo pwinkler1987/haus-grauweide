@@ -1,0 +1,25 @@
+{
+  "name": "haus-grauweide",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Das Haus Grauweide – Retro-Point-and-Click-Adventure (iOS/Android über Capacitor)",
+  "scripts": {
+    "build": "python3 tools/build_web.py",
+    "sync": "npm run build && cap sync",
+    "sync:release": "python3 tools/build_web.py --release && cap sync",
+    "android": "npm run sync && cap open android",
+    "ios": "npm run sync && cap open ios"
+  },
+  "dependencies": {
+    "@capacitor-community/admob": "^8.2.1",
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/ios": "^8.5.3",
+    "@capacitor/preferences": "^8.0.1",
+    "@capgo/native-purchases": "^8.9.6"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.3"
+  }
+}

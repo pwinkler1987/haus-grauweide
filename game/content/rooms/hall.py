@@ -33,8 +33,8 @@ DRAW = [
     ("line", 85, 60, 90, 88, "#c8a040"), ("circle", 90, 89, 3, "#c8a040"),
     # Haustür (links) – offen oder zu
     ("rect", 6, 48, 32, 56, "#2a2630"),
-    {"if": "!flag:door_open", "shapes": [("rect", 8, 50, 28, 54, WOOD), ("rect", 21, 50, 2, 54, "#2a1a10")]},
-    {"if": "flag:door_open", "shapes": [("rect", 8, 50, 28, 54, "#0a0f26"), ("rect", 8, 50, 6, 54, WOOD)]},
+    {"if": "!flag:door_open", "sprite": "", "shapes": [("rect", 8, 50, 28, 54, WOOD), ("rect", 21, 50, 2, 54, "#2a1a10")]},
+    {"if": "flag:door_open", "sprite": "hall_door_open", "shapes": [("rect", 8, 50, 28, 54, "#0a0f26"), ("rect", 8, 50, 6, 54, WOOD)]},
     # Fenster neben der Tür (hier kommt man mit der Leiter rein)
     ("rect", 44, 30, 18, 24, "#2a2630"), ("rect", 46, 32, 14, 20, "#0b1030"),
     # Kellertür (rechts)

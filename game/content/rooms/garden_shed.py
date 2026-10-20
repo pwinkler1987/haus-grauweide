@@ -30,12 +30,12 @@ DRAW = [
     ("poly", [(160, 84), (162, 76), (172, 76), (174, 84)], "#9e9e9e"),  # Gießkanne
     ("line", 172, 78, 180, 74, "#9e9e9e"),
     # Spaten an der Wand
-    {"if": "!flag:got_spaten", "shapes": [
+    {"if": "!flag:got_spaten", "sprite": "garden_shed_spade", "shapes": [
         ("rect", 52, 66, 2, 34, WOOD), ("rect", 49, 64, 8, 3, WOOD),
         ("poly", [(48, 100), (58, 100), (57, 110), (49, 110)], "#9a9aa2"),
     ]},
     # Leiter an der rechten Wand
-    {"if": "!flag:got_leiter", "shapes": [
+    {"if": "!flag:got_leiter", "sprite": "garden_shed_ladder", "shapes": [
         ("line", 262, 20, 272, 108, WOOD), ("line", 282, 20, 292, 108, WOOD),
         *[("line", 263 + i, 28 + i * 10, 283 + i, 28 + i * 10, WOOD) for i in range(8)],
     ]},
