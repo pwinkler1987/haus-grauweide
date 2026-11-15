@@ -34,6 +34,8 @@ const UI = {
     noSave: 'Kein Spielstand gefunden.', saveOld: 'Spielstand ist zu alt.', loaded: 'Geladen.',
     bought: 'Danke! Die Werbung ist weg.', buyCancel: 'Kauf abgebrochen.', restored: 'Kauf wiederhergestellt.',
     noPurchase: 'Kein Kauf gefunden.', restoreFailed: 'Wiederherstellen fehlgeschlagen.',
+    privacyNotRequired: 'Für deine Region sind keine Datenschutz-Einstellungen nötig.',
+    privacyFailed: 'Datenschutz-Einstellungen gerade nicht erreichbar. Bitte Internetverbindung prüfen.',
   },
   en: {
     verbs: { open: 'Open', close: 'Close', give: 'Give', take: 'Pick up', look: 'Look at', talk: 'Talk to', use: 'Use', push: 'Push', walk: 'Walk to' },
@@ -63,6 +65,8 @@ const UI = {
     noSave: 'No saved game found.', saveOld: 'This saved game is too old.', loaded: 'Loaded.',
     bought: 'Thank you! The ads are gone.', buyCancel: 'Purchase cancelled.', restored: 'Purchase restored.',
     noPurchase: 'No purchase found.', restoreFailed: 'Restore failed.',
+    privacyNotRequired: 'No privacy settings are needed in your region.',
+    privacyFailed: 'Privacy settings are not available right now. Please check your internet connection.',
   },
 };
 

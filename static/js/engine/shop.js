@@ -18,13 +18,24 @@ const AD_INTERVAL_MS = 5 * 60 * 1000;
 const plugins = () => window.Capacitor?.Plugins ?? {};
 const platform = () => window.Capacitor?.getPlatform?.();
 
+// Direkt nach requestConsentInfo lädt UMP das Formular noch und lehnt ab.
+async function showPrivacyOptionsForm(ads, tries = 5) {
+  for (let i = 1; ; i++) {
+    try {
+      return await ads.showPrivacyOptionsForm();
+    } catch (err) {
+      if (i >= tries) throw err;
+      await new Promise((resolve) => setTimeout(resolve, 700));
+    }
+  }
+}
+
 export class Shop {
   constructor() {
     this.native = !!window.Capacitor?.isNativePlatform?.();
     this.noAds = !this.native;
     this.product = null;  // aus dem Store, für Titel und Preis
     this.adReady = false;
-    this.privacyForm = false;
     this.lastAd = performance.now() - AD_INTERVAL_MS + FIRST_AD_AFTER_MS;
   }
 
@@ -62,7 +73,6 @@ export class Shop {
     try {
       const consent = await ads.requestConsentInfo();
       if (consent.status === 'REQUIRED' && consent.isConsentFormAvailable) await ads.showConsentForm();
-      this.privacyForm = consent.privacyOptionsRequirementStatus === 'REQUIRED';
     } catch (err) {
       // z. B. keine DSGVO-Mitteilung in AdMob angelegt; Werbung trotzdem laden
       console.warn('Einwilligung:', err);
@@ -128,7 +138,30 @@ export class Shop {
     return this.noAds;
   }
 
-  showPrivacyOptions() {
-    return plugins().AdMob.showPrivacyOptionsForm();
+  // Menüpunkt „Datenschutz-Einstellungen“. Fragt den Stand neu ab, damit es auch
+  // klappt, wenn die Abfrage beim Start (z. B. offline) fehlgeschlagen ist.
+  // Ergebnis: 'shown', 'notRequired' oder 'failed'.
+  async showPrivacyOptions() {
+    const ads = plugins().AdMob;
+    try {
+      const consent = await ads.requestConsentInfo();
+      if (consent.status === 'REQUIRED' && consent.isConsentFormAvailable) {
+        await ads.showConsentForm();
+      } else if (consent.privacyOptionsRequirementStatus === 'REQUIRED') {
+        await showPrivacyOptionsForm(ads);
+      } else {
+        return 'notRequired';
+      }
+      return 'shown';
+    } catch (err) {
+      console.warn('Datenschutz-Einstellungen:', err);
+      return 'failed';
+    }
+  }
+
+  // Immer anbieten, solange Werbung läuft: Der UMP-Status ist beim Start oft
+  // noch nicht bekannt (offline, Abfrage fehlgeschlagen).
+  get hasPrivacyOptions() {
+    return this.native && !this.noAds;
   }
 }

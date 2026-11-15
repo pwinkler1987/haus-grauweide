@@ -654,7 +654,7 @@ class Game {
       entries.push([`${shop.product.title} – ${shop.product.priceString}`, () => this.buyNoAds()]);
       entries.push([t('restore'), () => this.restoreNoAds()]);
     }
-    if (shop.privacyForm && !shop.noAds) entries.push([t('privacy'), () => shop.showPrivacyOptions()]);
+    if (shop.hasPrivacyOptions) entries.push([t('privacy'), () => this.showPrivacyOptions()]);
     const el = this.el.menu;
     el.innerHTML = `<h2>${t('menu')}</h2>`;
     for (const [label, fn] of entries) {
@@ -673,6 +673,12 @@ class Game {
       console.warn('Kauf:', err);
       this.toast(t('buyCancel'));
     }
+  }
+
+  async showPrivacyOptions() {
+    const result = await this.shop.showPrivacyOptions();
+    if (result === 'notRequired') this.toast(t('privacyNotRequired'));
+    else if (result === 'failed') this.toast(t('privacyFailed'));
   }
 
   async restoreNoAds() {
