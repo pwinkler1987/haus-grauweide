@@ -31,6 +31,8 @@ html, body {
   overscroll-behavior: none;
 }
 
+body { padding-bottom: var(--banner, 0px); }
+
 #game {
   width: min(960px, 100vw - 32px);
   margin: 16px auto;
@@ -387,13 +389,14 @@ html, body {
 /* Handy quer: Szene mit Inventar links, Verben und Gruppe rechts. */
 @media (orientation: landscape) and (max-height: 540px) {
   html, body { height: 100%; overflow: hidden; }
+  body { padding-bottom: 0; }
   /* Szene oben über die volle Breite, darunter Satzzeile, Verben und Inventar/Gruppe. */
   #game {
-    --below: 86px;
+    --below: calc(86px + var(--banner, 0px));
     width: 100%;
     height: 100dvh;
     margin: 0;
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) calc(env(safe-area-inset-bottom) + var(--banner, 0px)) env(safe-area-inset-left);
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-rows: auto auto auto minmax(0, 1fr);
@@ -451,7 +454,7 @@ html, body {
   #menu {
     position: fixed;
     z-index: 9;
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) calc(env(safe-area-inset-bottom) + var(--banner, 0px)) env(safe-area-inset-left);
     justify-content: safe center;
     overflow-y: auto;
   }

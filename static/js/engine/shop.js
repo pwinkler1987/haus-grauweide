@@ -10,6 +10,14 @@ const INTERSTITIAL_ID = TEST_ADS ? {
   android: 'ca-app-pub-3910049405256581/5359005908',
   ios: 'ca-app-pub-3910049405256581/7793597554',
 };
+// Banner unter der Verbenleiste.
+const BANNER_ID = TEST_ADS ? {
+  android: 'ca-app-pub-3940256099942544/9214589741',
+  ios: 'ca-app-pub-3940256099942544/2435281174',
+} : {
+  android: 'ca-app-pub-3910049405256581/1599271018',
+  ios: 'ca-app-pub-3910049405256581/1112185856',
+};
 const PRODUCT_ID = 'remove_ads';
 const NO_ADS_KEY = 'grauweide_no_ads';
 const FIRST_AD_AFTER_MS = 4 * 60 * 1000;
@@ -65,6 +73,8 @@ export class Shop {
     this.noAds = true;
     this.adReady = false;
     await setItem(NO_ADS_KEY, '1');
+    document.documentElement.style.setProperty('--banner', '0px');
+    await plugins().AdMob?.removeBanner()?.catch(() => {});
   }
 
   async startAds() {
@@ -84,6 +94,22 @@ export class Shop {
     ads.addListener('interstitialAdDismissed', () => this.prepareAd());
     ads.addListener('interstitialAdFailedToShow', () => this.prepareAd());
     await this.prepareAd();
+    await this.showBanner();
+  }
+
+  // Der Banner liegt nativ über der WebView; --banner hält unten Platz frei.
+  async showBanner() {
+    const adId = BANNER_ID[platform()];
+    if (this.noAds || !adId) return;
+    const ads = plugins().AdMob;
+    const setHeight = (px) => document.documentElement.style.setProperty('--banner', `${px}px`);
+    ads.addListener('bannerAdSizeChanged', ({ height }) => setHeight(this.noAds ? 0 : height));
+    ads.addListener('bannerAdFailedToLoad', () => setHeight(0));
+    try {
+      await ads.showBanner({ adId, adSize: 'ADAPTIVE_BANNER', position: 'BOTTOM_CENTER', margin: 0, isTesting: TEST_ADS });
+    } catch (err) {
+      console.warn('Banner nicht geladen:', err);
+    }
   }
 
   async prepareAd() {
