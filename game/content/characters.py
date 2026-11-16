@@ -1,6 +1,6 @@
 """Die spielbaren Figuren.
 
-'sprite'  – Farben für die Platzhalter-Grafik ('long_hair' für lange Haare).
+'sprite'  – Farben für das Pixel-Sprite ('long_hair' für lange Haare).
 'actions' – was passiert, wenn eine *andere* Figur diese Figur anschaut,
             anspricht usw. (gleiches Format wie bei Hotspots).
 """

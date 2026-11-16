@@ -1,5 +1,5 @@
 // Zeichnet Form-Listen aus den Python-Inhalten (Räume und Inventar-Icons).
-// Später können hier zusätzlich echte Pixel-Art-Bilder geladen werden.
+// Räume mit Pixel-Art-Bild zeichnen hier nur noch die zustandsabhängigen Formen.
 
 function starField(ctx, x, y, w, h, count, color) {
   let seed = (x * 73 + y * 151 + count) | 0; // deterministisch: Sterne flackern nicht
@@ -12,10 +12,14 @@ function starField(ctx, x, y, w, h, count, color) {
   ctx.globalAlpha = 1;
 }
 
-export function drawShapes(ctx, shapes, check) {
+// pixelArt: der Raum hat ein Hintergrundbild, Blöcke mit "sprite" zeigen dann ihr Overlay.
+export function drawShapes(ctx, shapes, check, pixelArt = false) {
   for (const s of shapes ?? []) {
     if (!Array.isArray(s)) {
-      if (check(s.if)) drawShapes(ctx, s.shapes, check);
+      if (!check(s.if)) continue;
+      if (pixelArt && s.sprite === '') continue;
+      if (pixelArt && s.img) ctx.drawImage(s.img, 0, 0);
+      else drawShapes(ctx, s.shapes, check);
       continue;
     }
     const [type, ...a] = s;

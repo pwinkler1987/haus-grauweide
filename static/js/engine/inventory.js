@@ -1,5 +1,6 @@
 // Inventar-Anzeige: ein Feld pro Gegenstand mit gezeichnetem Icon.
 import { drawShapes } from './renderer.js';
+import { onPress } from './press.js';
 
 export class InventoryView {
   constructor(el, items, { onClick, onContext, onHover }) {
@@ -20,8 +21,11 @@ export class InventoryView {
       c.height = 16;
       drawShapes(c.getContext('2d'), item.icon, () => true);
       b.appendChild(c);
-      b.addEventListener('click', () => this.handlers.onClick(id));
-      b.addEventListener('contextmenu', (e) => { e.preventDefault(); this.handlers.onContext(id); });
+      onPress(b, {
+        tap: () => this.handlers.onClick(id),
+        long: () => this.handlers.onContext(id),
+        down: () => this.handlers.onHover(id),
+      });
       b.addEventListener('mouseenter', () => this.handlers.onHover(id));
       b.addEventListener('mouseleave', () => this.handlers.onHover(null));
       this.el.appendChild(b);

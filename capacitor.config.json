@@ -1,0 +1,13 @@
+{
+  "appId": "de.pwinkler.grauweide",
+  "appName": "Haus Grauweide",
+  "webDir": "www",
+  "backgroundColor": "#000000",
+  "android": {
+    "backgroundColor": "#000000"
+  },
+  "ios": {
+    "backgroundColor": "#000000",
+    "contentInset": "never"
+  }
+}

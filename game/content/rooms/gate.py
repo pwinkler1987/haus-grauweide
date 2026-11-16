@@ -34,7 +34,7 @@ DRAW = [
     ("rect", 206, 62, 114, 46, HEDGE),
     *[("circle", x, 62, 7, HEDGE_TOP) for x in range(4, 114, 12)],
     *[("circle", x, 62, 7, HEDGE_TOP) for x in range(212, 320, 12)],
-    {"if": "flag:hedge_found", "shapes": [
+    {"if": "flag:hedge_found", "sprite": "gate_hedge_hole", "shapes": [
         ("poly", [(28, 108), (30, 88), (40, 82), (50, 88), (52, 108)], "#040704"),
     ]},
     # Pfeiler mit Schild
@@ -42,13 +42,13 @@ DRAW = [
     ("rect", 194, 44, 14, 64, STONE), ("rect", 192, 40, 18, 6, "#5a5a62"),
     ("rect", 114, 60, 10, 8, "#6b5a2a"),
     # Tor: geschlossen mit Kette, oder offen
-    {"if": "!flag:gate_open", "shapes": [
+    {"if": "!flag:gate_open", "sprite": "gate_closed", "shapes": [
         *[("rect", x, 52, 2, 56, "#1d1d22") for x in range(129, 194, 6)],
         ("rect", 126, 56, 68, 2, "#1d1d22"), ("rect", 126, 100, 68, 2, "#1d1d22"),
         ("rect", 148, 78, 24, 2, "#777777"),
         ("rect", 157, 80, 7, 7, "#8a7a3a"),
     ]},
-    {"if": "flag:gate_open", "shapes": [
+    {"if": "flag:gate_open", "sprite": "gate_open", "shapes": [
         *[("rect", x, 52, 2, 56, "#1d1d22") for x in range(129, 140, 5)],
         *[("rect", x, 52, 2, 56, "#1d1d22") for x in range(182, 194, 5)],
     ]},

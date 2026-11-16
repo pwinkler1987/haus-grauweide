@@ -1,4 +1,5 @@
 // Die Verb-Leiste (3x3 wie bei den Klassikern).
+import { t } from './i18n.js';
 
 export const VERBS = [
   ['open', 'Öffne'],   ['close', 'Schließe'], ['give', 'Gib'],
@@ -6,20 +7,21 @@ export const VERBS = [
   ['use', 'Benutze'],  ['push', 'Drücke'],    ['walk', 'Gehe zu'],
 ];
 
-export const VERB_LABEL = Object.fromEntries(VERBS);
+export const verbLabel = (id) => t(`verbs.${id}`);
 
 // Verben, die zwei Objekte verbinden können: "Benutze X mit Y", "Gib X an Y".
-export const PREPOSITION = { use: 'mit', give: 'an' };
+export const preposition = (id) => t(`prep.${id}`);
 
 export class VerbBar {
   constructor(el, onChange) {
     this.onChange = onChange;
     this.buttons = {};
     this.verb = 'walk';
-    VERBS.forEach(([id, label], i) => {
+    VERBS.forEach(([id], i) => {
+      const label = verbLabel(id);
       const b = document.createElement('button');
       b.textContent = label;
-      b.title = `Taste ${i + 1}`;
+      b.title = t('key', { n: i + 1 });
       b.addEventListener('click', () => this.set(id));
       el.appendChild(b);
       this.buttons[id] = b;
